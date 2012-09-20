@@ -3,6 +3,8 @@ var path = require('path');
 var fs = require('fs');
 var helpers = require('./helpers');
 
+var PORT = process.env.PORT || 8889;
+
 function makeHash (email, salt) {
   var sha = require('crypto').createHash('sha256');
   return 'sha256$' + sha.update(email + salt).digest('hex');
@@ -54,7 +56,7 @@ app.get('/invalid.json', function (request, response) {
 
 if (!module.parent) {
   console.log(process.pid);
-  app.listen(8889);
+  app.listen(PORT);
 } else {
   module.exports = app;
 }
