@@ -23,7 +23,7 @@ app.use(function buildAssertion(request, response, next){
     }
     catch (err) {
       console.log("Error parsing override values:", err);
-      response.json(err.message, 400);
+      response.json({ msg: err.message }, 400);
     }
   }
   else {
