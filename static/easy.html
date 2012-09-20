@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+</head>
+<body>
+  <div>
+    <img src="img/badge.png"/>
+    <form>
+      Issue <input id="count" type="text" value="1"/> badge(s) to
+      <input id="email" type="text" placeholder="email"/> on
+      <select id="server">
+        <option value="dev">development</option>
+        <option value="stage">staging</option>
+        <option value="beta">production</option>
+      </select>.
+      <input id="hash" type="checkbox"/> hash it
+      <input id="non-unique" type="checkbox"/> don't uniquify
+      <input type="checkbox"/> modaless
+      <input id="go" type="submit" value="Go"/>
+    </form>
+  </div>
+  <script id="issuer-api" src=""></script>
+  <script src="js/jquery.min.js"></script>
+  <script>
+  function buildAssertions(spec){
+    var assertions = [];
+    var endpoint = spec.hashed ? 'hashed.json' : 'raw.json';
+    for (var i = 0; i < spec.count; i++){
+      var assertion = $(location).attr('protocol') + '//' 
+        + $(location).attr('host') 
+        + '/' + endpoint 
+        + '?email=' + encodeURIComponent(spec.email);
+      if(spec.unique){
+        var millis = (new Date()).getTime();
+        var name = {
+          badge: {
+            name: 'Badge ' + millis + '-' + i
+          }
+        };
+        assertion += '&override=' + encodeURIComponent(JSON.stringify(name));
+      }
+      assertions[i] = assertion;
+    }
+    return assertions;
+  }
+
+  $.fn.extend({                                                   
+    reloadFrom: function(scriptUrl){
+      this.attr('src', scriptUrl);
+      return $.getScript(scriptUrl);                              
+    },  
+  });   
+
+  $(function(){
+
+    $('#go').click(function(){
+      try {
+        var assertions = buildAssertions({
+          count: $('#count').val(),
+          email: $('#email').val(),
+          hashed: $('#hash').is(':checked'),
+          unique: !$('#non-unique').is(':checked')
+        });
+        console.log(assertions);
+        OpenBadges.issue(assertions);
+      }
+      catch (ex) {
+        console.log(ex);
+      }
+      return false;
+    });
+
+    $('#server').change(function(){
+      var subdomain = $(this).val();
+      $('#go').attr('disabled', true);
+      $('#issuer-api').reloadFrom('http://' + subdomain + '.openbadges.org/issuer.js')
+      .success(function(){
+        $('#go').attr('disabled', false);
+      })
+      .fail(function(){
+        console.log('getScript failed on' + subdomain);
+      });
+    });
+    $('#server').change();
+  });
+  </script>
+</body>
+</html>
