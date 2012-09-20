@@ -2,12 +2,32 @@
 <html>
 <head>
   <meta charset="utf-8">
-
+  <style>
+    .top { 
+      position: absolute;
+      right: 50%;
+    }
+    .top-inner {
+      text-align: center;
+      left: 50%;
+      position: relative;
+    }
+    form {
+      text-align: right;
+    }
+    .badge { 
+      width: 200px; 
+    }
+    .mt {
+      margin-top: 15px;
+    }
+  </style>
 </head>
 <body>
-  <div>
-    <img src="img/badge.png"/>
-    <form>
+  <div class="top mt">
+  <div class="top-inner">
+    <img class="badge" src="img/badge.png"/>
+    <form class="mt">
       Issue <input id="count" type="text" value="1"/> badge(s) to
       <input id="email" type="text" placeholder="email"/> on
       <select id="server">
@@ -15,11 +35,14 @@
         <option value="stage">staging</option>
         <option value="beta">production</option>
       </select>.
-      <input id="hash" type="checkbox"/> hash it
+      <br/>
+      <input id="hash" type="checkbox"/> hash email
       <input id="non-unique" type="checkbox"/> don't uniquify
       <input id="no-modal" type="checkbox"/> modaless
+      <br/>
       <input id="go" type="submit" value="Go"/>
     </form>
+  </div>
   </div>
   <script id="issuer-api" src=""></script>
   <script src="js/jquery.min.js"></script>
