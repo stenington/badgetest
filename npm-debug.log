@@ -1,0 +1,40 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'test' ]
+info using npm@1.1.16
+info using node@v0.6.15
+verbose config file /Users/mlarsson/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose caching /Users/mlarsson/Projects/badgerama/package.json
+verbose loadDefaults fakeissuer@0.0.1
+verbose run-script [ 'pretest', 'test', 'posttest' ]
+info pretest fakeissuer@0.0.1
+info test fakeissuer@0.0.1
+verbose unsafe-perm in lifecycle true
+silly exec sh "-c" "vows --spec test/*-test.js"
+silly spawning [ 'sh',
+silly spawning   [ '-c', 'vows --spec test/*-test.js' ],
+silly spawning   '/Users/mlarsson/Projects/badgerama' ]
+info fakeissuer@0.0.1 Failed to exec test script
+ERR! fakeissuer@0.0.1 test: `vows --spec test/*-test.js`
+ERR! `sh "-c" "vows --spec test/*-test.js"` failed with 1
+ERR! 
+ERR! Failed at the fakeissuer@0.0.1 test script.
+ERR! This is most likely a problem with the fakeissuer package,
+ERR! not with npm itself.
+ERR! Tell the author that this fails on your system:
+ERR!     vows --spec test/*-test.js
+ERR! You can get their info via:
+ERR!     npm owner ls fakeissuer
+ERR! There is likely additional logging output above.
+ERR! 
+ERR! System Darwin 11.4.0
+ERR! command "node" "/usr/local/bin/npm" "test"
+ERR! cwd /Users/mlarsson/Projects/badgerama
+ERR! node -v v0.6.15
+ERR! npm -v 1.1.16
+ERR! code ELIFECYCLE
+ERR! message fakeissuer@0.0.1 test: `vows --spec test/*-test.js`
+ERR! message `sh "-c" "vows --spec test/*-test.js"` failed with 1
+ERR! errno {}
+verbose exit [ 1, true ]

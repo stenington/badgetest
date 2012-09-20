@@ -1,0 +1,134 @@
+<!doctype html public "wutlol">
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1"/>
+    
+    <title dir="ltr">Yep</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="http://localhost:8888/issuer.js"></script>
+    <style>
+      .assertion {
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+      }
+      .assertion .badge { 
+        display: inline-block; 
+        width: 100px;
+        vertical-align: top;
+      }
+      .assertion code {
+        display: inline-block;
+      }
+      .assertion pre {
+        margin: 0;
+      }
+      label {
+        display: block;
+      }
+      textarea {
+        vertical-align: top;
+        width: 300px;
+        height: 150px;
+      }
+      .loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 200px;
+        margin-left: -100px;
+      }
+      .error {
+        background-color: #F2DEDE;
+        color: #B94A48;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="assertion">
+      <img class="loader" src="/img/ajax-loader.gif" />
+      <h4>Assertion</h4>
+      <img class="badge" src="/img/badge.png" />
+      <code><pre>
+      </pre></code>
+      <p class="error"></p>
+    </div>
+
+    <h4>Override it</h4>
+    <label>Email: <input id='email'></label>
+    <label>JSON: <textarea id='json'></textarea></label>
+
+    <h4>Issue it</h4>
+    <button id='unhashed'>Unhashed</button>
+    <button id='hashed'>Hashed</button>
+    <button id='invalid'>Invalid</button>
+    <script>
+      var unhashed = document.getElementById('unhashed');
+      var hashed = document.getElementById('hashed');
+      var invalid = document.getElementById('invalid');
+      function getEmail() {
+        return document.getElementById('email').value;
+      }
+      function getJSON() {
+        return document.getElementById('json').value;
+      }
+      function buildUrl(endpoint){
+        var url = 'http://localhost:8889/' + endpoint + '?';
+        var params = [];
+        var email = getEmail();
+        if (!email.match(/^\s*$/)){
+          params.push('email=' + encodeURIComponent(email));
+        }
+        var json = getJSON();
+        if (!json.match(/^\s*$/)){
+          params.push('override=' + encodeURIComponent(json));
+        }
+        url += params.join('&');
+        return url;
+      }
+      
+      unhashed.addEventListener('click', function(){
+        OpenBadges.issue(buildUrl('raw.json'));
+      },false)
+    
+      hashed.addEventListener('click', function(){
+        OpenBadges.issue([buildUrl('hashed.json')]);
+      },false)
+
+      // added to test whether proper error message is thrown for invalid assertion 
+      invalid.addEventListener('click', function(){
+        OpenBadges.issue(buildUrl('invalid.json'));
+      },false)
+    
+    </script>
+    <script src="js/jquery.min.js"></script>
+    <script>
+    $(function(){
+      $('.loader').bind('ajaxStart', function(){
+        $('.error').empty();
+        $(this).show();
+      }).bind('ajaxStop', function(){
+        $(this).hide();
+      });
+      
+      function showAssertion() {
+        $.ajax({
+          url: buildUrl('raw.json'),
+          success: function(data) {
+            $('.assertion pre').html(JSON.stringify(data, null, '  '));
+          },
+          error: function(xhr) {
+            console && console.log('Error:', xhr.responseText);
+            $('.error').html(xhr.responseText);
+          }
+        });
+      }
+
+      $('#email,#json').change(showAssertion);
+      showAssertion();
+    });
+    </script>
+  </body>
+</html>
