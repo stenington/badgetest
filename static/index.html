@@ -75,7 +75,7 @@
         return document.getElementById('json').value;
       }
       function buildUrl(endpoint){
-        var url = 'http://localhost:8889/' + endpoint + '?';
+        var url = '/' + endpoint + '?';
         var params = [];
         var email = getEmail();
         if (!email.match(/^\s*$/)){
