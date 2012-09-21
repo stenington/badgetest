@@ -12,9 +12,15 @@ You can choose to
 
 if you so choose.
 
-## Unique Naming
+### Unique Naming
 
 Badge names are made unique by appending the string `timestamp-n` where 
 
   * the timestamp is in millis, and will be the same for all badges issued in one group
   * and *n* is the badge's number in the group. 
+
+### Email
+
+You can use an actual Persona account connected to your real email, **or** you 
+can use [mockmyid.com](https://github.com/callahad/mockmyid)! It's super-convenient
+for creating different test backpacks.
