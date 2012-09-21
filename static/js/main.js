@@ -27,7 +27,7 @@
 
       if(spec.unique){
         var millis = (new Date()).getTime();
-        overrides.badge.name = 'Badge ' + millis + '-' + i;
+        overrides.badge.name = 'Badge ' + millis + '-' + (i+1);
       }
 
       assertion += '&override=' + encodeURIComponent(JSON.stringify(overrides));
