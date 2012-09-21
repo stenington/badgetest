@@ -1,0 +1,19 @@
+.top { 
+  position: absolute;
+  right: 50%;
+}
+.top-inner {
+  text-align: center;
+  left: 50%;
+  position: relative;
+}
+form {
+  text-align: right;
+  line-height: 1.7em;
+}
+.badge { 
+  width: 200px; 
+}
+.mt {
+  margin-top: 35px;
+}

@@ -2,26 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <style>
-    .top { 
-      position: absolute;
-      right: 50%;
-    }
-    .top-inner {
-      text-align: center;
-      left: 50%;
-      position: relative;
-    }
-    form {
-      text-align: right;
-    }
-    .badge { 
-      width: 200px; 
-    }
-    .mt {
-      margin-top: 35px;
-    }
-  </style>
+  <title>Badge Test</title>
+  <link rel="stylesheet" href="css/normalize.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
 </head>
 <body>
   <a href="https://github.com/stenington/badgetest"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
@@ -45,81 +28,8 @@
     </form>
   </div>
   </div>
-  <script id="issuer-api" src=""></script>
   <script src="js/jquery.min.js"></script>
-  <script>
-  function buildAssertions(spec){
-    var assertions = [];
-    var origin = $(location).attr('protocol') + '//' + $(location).attr('host'); 
-    var endpoint = spec.hashed ? 'hashed.json' : 'raw.json';
-
-    for (var i = 0; i < spec.count; i++){
-      var assertion = origin 
-        + '/' + endpoint 
-        + '?email=' + encodeURIComponent(spec.email);
-
-      var overrides = {
-        badge: {
-          issuer: {
-            origin: origin
-          }
-        }
-      };
-
-      if(spec.unique){
-        var millis = (new Date()).getTime();
-        overrides.badge.name = 'Badge ' + millis + '-' + i;
-      }
-
-      assertion += '&override=' + encodeURIComponent(JSON.stringify(overrides));
-      assertions[i] = assertion;
-    }
-    return assertions;
-  }
-
-  $.fn.extend({                                                   
-    reloadFrom: function(scriptUrl){
-      this.attr('src', scriptUrl);
-      return $.getScript(scriptUrl);                              
-    },  
-  });   
-
-  $(function(){
-    $('#go').click(function(){
-      try {
-        var assertions = buildAssertions({
-          count: $('#count').val(),
-          email: $('#email').val(),
-          hashed: $('#hash').is(':checked'),
-          unique: !$('#non-unique').is(':checked')
-        });
-        console.log('Assertions', assertions);
-        if($('#no-modal').is(':checked')){
-          OpenBadges.issue_no_modal(assertions);
-        }
-        else {
-          OpenBadges.issue(assertions);
-        }
-      }
-      catch (ex) {
-        console.log(ex);
-      }
-      return false;
-    });
-
-    $('#server').change(function(){
-      var subdomain = $(this).val();
-      $('#go').attr('disabled', true);
-      $('#issuer-api').reloadFrom('http://' + subdomain + '.openbadges.org/issuer.js')
-      .success(function(){
-        $('#go').attr('disabled', false);
-      })
-      .fail(function(){
-        console.log('getScript failed on' + subdomain);
-      });
-    });
-    $('#server').change();
-  });
-  </script>
+  <script src="js/main.js"></script>
+  <script id="issuer-api" src="http://dev.openbadges.org/issuer.js"></script>
 </body>
 </html>
