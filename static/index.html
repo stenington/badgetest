@@ -12,17 +12,17 @@
   <div class="top-inner">
     <img class="badge" src="img/badge.png"/>
     <form class="mt">
-      Issue <input id="count" type="text" value="1"/> badge(s) to
-      <input id="email" type="text" placeholder="email"/> on
-      <select id="server">
+      Issue <input id="count" type="text" value="1" title="number of badges" /> badge(s) to
+      <input id="email" type="text" placeholder="email" title="recipient email" /> on
+      <select id="server" title="backpack server">
         <option value="dev">development</option>
         <option value="stage">staging</option>
         <option value="beta">production</option>
       </select>.
       <br/>
-      <label><input id="hash" type="checkbox"/> hash email</label>
-      <label><input id="non-unique" type="checkbox"/> don't uniquify</label>
-      <label><input id="no-modal" type="checkbox"/> modaless</label>
+      <label><input id="hash" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
+      <label><input id="non-unique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
+      <label><input id="no-modal" type="checkbox" title="to use the modaless workflow" /> modaless</label>
       <br/>
       <input id="go" type="submit" value="Go"/>
     </form>
