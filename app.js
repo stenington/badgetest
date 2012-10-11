@@ -55,7 +55,7 @@ app.get('/invalid.json', function (request, response) {
 });
 
 if (!module.parent) {
-  console.log(process.pid);
+  console.log("Listening on port", PORT);
   app.listen(PORT);
 } else {
   module.exports = app;

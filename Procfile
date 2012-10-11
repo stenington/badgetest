@@ -1,1 +1,1 @@
-web: node issuer.js
+web: node app.js
