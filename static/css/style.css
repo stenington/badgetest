@@ -12,7 +12,8 @@ form {
   line-height: 1.7em;
 }
 .badge { 
-  width: 200px; 
+  max-width: 200px; 
+  max-height: 200px;
 }
 .mt {
   margin-top: 35px;
