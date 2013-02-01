@@ -90,7 +90,7 @@
 
       self.count = ko.observable(1);
       self.email = ko.observable();
-      var servers = JSON.parse(localStorage.servers) || defaultServers;
+      var servers = localStorage.servers ? JSON.parse(localStorage.servers) : defaultServers;
       self.servers = ko.observableArray(servers);
       self.servers.subscribe(function(servers) {
         localStorage.servers = JSON.stringify(servers);
