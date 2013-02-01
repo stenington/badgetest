@@ -8,6 +8,7 @@
 </head>
 <body>
   <a href="https://github.com/stenington/badgetest"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+
   <div class="top mt">
     <div class="top-inner">
       <img class="badge" src="img/badge.png"/>
@@ -24,8 +25,19 @@
         <br/>
         <input data-bind="enable: apiLoaded" type="submit" value="Go"/>
       </form>
+      <hr>
+      <a class="toggle" data-bind="click: toggleAdvanced, text: advancedToggleText">Advanced options</a>
+      <form data-bind="visible: showAdvanced" class="mt">
+        <input data-bind="value: serverName" type="text" placeholder="name" />
+        <input data-bind="value: serverUrl" type="text" placeholder="issuer.js url" />
+        <input data-bind="enable: serverName && serverUrl, click: addServer" type="button" value="Add Backpack server" />
+        <br>
+        <input data-bind="enable: servers().length, click: removeServer" type="button" value="Remove selected server" />
+        <input data-bind="click: resetServers" type="button" value="Reset servers" />
+      </form>
     </div>
   </div>
+
   <script id="issuer-api"></script>
   <script src="js/jquery.min.js"></script>
   <script src="js/knockout.js"></script>
@@ -70,14 +82,21 @@
     var ViewModel = function() {
       var self = this;
 
-      self.count = ko.observable(1);
-      self.email = ko.observable();
-      self.servers = ko.observableArray([
+      var defaultServers = [
         { name: 'development', url: 'http://dev.openbadges.org/issuer.js' },
         { name: 'staging', url: 'http://stage.openbadges.org/issuer.js' },
         { name: 'production', url: 'http://beta.openbadges.org/issuer.js' }
-      ]);
+      ];
+
+      self.count = ko.observable(1);
+      self.email = ko.observable();
+      var servers = JSON.parse(localStorage.servers) || defaultServers;
+      self.servers = ko.observableArray(servers);
+      self.servers.subscribe(function(servers) {
+        localStorage.servers = JSON.stringify(servers);
+      });
       self.selectedServer = ko.observable();
+
       self.hash = ko.observable(false);
       self.nonUnique = ko.observable(false);
       self.noModal = ko.observable(false);
@@ -115,9 +134,33 @@
         }
         return false;
       };
+
+      self.serverName = ko.observable();
+      self.serverUrl = ko.observable();
+      self.addServer = function() {
+        self.servers.push({ name: self.serverName(), url: self.serverUrl() });
+        self.serverName('');
+        self.serverUrl('');
+      };
+      self.removeServer = function() {
+        var i = self.servers.indexOf(self.selectedServer());
+        self.servers.splice(i, 1);
+      };
+      self.resetServers = function() {
+        self.servers(defaultServers);
+      };
+
+      self.showAdvanced = ko.observable(false);
+      self.toggleAdvanced = function() {
+        self.showAdvanced(!self.showAdvanced());
+      };
+      self.advancedToggleText = ko.computed(function() {
+        return self.showAdvanced() ? "Hide advanced options" : "Show advanced options";
+      });
     };
 
-    ko.applyBindings(new ViewModel());
+    var vm = new ViewModel();
+    ko.applyBindings(vm);
   </script>
 </body>
 </html>

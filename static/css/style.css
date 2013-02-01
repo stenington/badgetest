@@ -24,3 +24,8 @@ form {
 .servers.loaded {
   border-color: #468847;
 }
+.toggle {
+  text-decoration: underline;
+  font-size: smaller;
+  color: #3a87ad;
+}
