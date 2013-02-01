@@ -9,27 +9,115 @@
 <body>
   <a href="https://github.com/stenington/badgetest"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   <div class="top mt">
-  <div class="top-inner">
-    <img class="badge" src="img/badge.png"/>
-    <form class="mt">
-      Issue <input id="count" type="text" value="1" title="number of badges" /> badge(s) to
-      <input id="email" type="text" placeholder="email" title="recipient email" /> on
-      <select id="server" title="backpack server">
-        <option value="dev">development</option>
-        <option value="stage">staging</option>
-        <option value="beta">production</option>
-      </select>.
-      <br/>
-      <label><input id="hash" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
-      <label><input id="non-unique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
-      <label><input id="no-modal" type="checkbox" title="to use the modaless workflow" /> modaless</label>
-      <br/>
-      <input id="go" type="submit" value="Go"/>
-    </form>
+    <div class="top-inner">
+      <img class="badge" src="img/badge.png"/>
+      <form class="mt" data-bind="submit: issue">
+        Issue <input data-bind="value: count" type="text" title="number of badges" /> badge(s) to
+        <input data-bind="value: email" type="text" placeholder="email" title="recipient email" /> on
+        <select data-bind="options: servers, optionsText: 'name', value: selectedServer, 
+          event: { change: reloadAPI }, css: { loaded: apiLoaded() }" 
+          title="backpack server" class="servers"></select>.
+        <br/>
+        <label><input data-bind="checked: hash" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
+        <label><input data-bind="checked: nonUnique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
+        <label><input data-bind="checked: noModal" type="checkbox" title="to use the modaless workflow" /> modaless</label>
+        <br/>
+        <input data-bind="enable: apiLoaded" type="submit" value="Go"/>
+      </form>
+    </div>
   </div>
-  </div>
+  <script id="issuer-api"></script>
   <script src="js/jquery.min.js"></script>
-  <script src="js/main.js"></script>
-  <script id="issuer-api" src="http://dev.openbadges.org/issuer.js"></script>
+  <script src="js/knockout.js"></script>
+  <script>
+
+    function buildAssertions(spec){
+      var assertions = [];
+      var origin = $(location).attr('protocol') + '//' + $(location).attr('host'); 
+      var endpoint = spec.hashed ? 'hashed.json' : 'raw.json';
+
+      for (var i = 0; i < spec.count; i++){
+        var assertion = origin 
+          + '/' + endpoint 
+          + '?email=' + encodeURIComponent(spec.email);
+
+        var overrides = {
+          badge: {
+            issuer: {
+              origin: origin
+            }
+          }
+        };
+
+        if(spec.unique){
+          var millis = (new Date()).getTime();
+          overrides.badge.name = 'Badge ' + millis + '-' + (i+1);
+        }
+
+        assertion += '&override=' + encodeURIComponent(JSON.stringify(overrides));
+        assertions[i] = assertion;
+      }
+      return assertions;
+    }
+
+    $.fn.extend({                                                   
+      reloadFrom: function(scriptUrl){
+        this.attr('src', scriptUrl);
+        return $.getScript(scriptUrl);                              
+      },  
+    });   
+
+    var ViewModel = function() {
+      var self = this;
+
+      self.count = ko.observable(1);
+      self.email = ko.observable();
+      self.servers = ko.observableArray([
+        { name: 'development', url: 'http://dev.openbadges.org/issuer.js' },
+        { name: 'staging', url: 'http://stage.openbadges.org/issuer.js' },
+        { name: 'production', url: 'http://beta.openbadges.org/issuer.js' }
+      ]);
+      self.selectedServer = ko.observable();
+      self.hash = ko.observable(false);
+      self.nonUnique = ko.observable(false);
+      self.noModal = ko.observable(false);
+
+      self.reloadAPI = function(viewModel, evt) {
+        self.apiLoaded(false);
+        var server = viewModel.selectedServer();
+        console.log("Reloading Issuer API from", server.name, "<" + server.url + ">");
+        $('#issuer-api').reloadFrom(server.url)
+          .success(function() {
+            console.log("Issuer API loaded from", server.name);
+            self.apiLoaded(true); 
+          });
+      };
+      self.apiLoaded = ko.observable(false);
+
+      self.issue = function() {
+        try {
+          var assertions = buildAssertions({
+            count: self.count(),
+            email: self.email(),
+            hashed: self.hash(),
+            unique: !self.nonUnique()
+          });
+          console.log('Assertions', assertions);
+          if(self.noModal()){
+            OpenBadges.issue_no_modal(assertions);
+          }
+          else {
+            OpenBadges.issue(assertions);
+          }
+        }
+        catch (ex) {
+          console.log(ex);
+        }
+        return false;
+      };
+    };
+
+    ko.applyBindings(new ViewModel());
+  </script>
 </body>
 </html>

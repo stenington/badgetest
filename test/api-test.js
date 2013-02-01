@@ -4,7 +4,7 @@ var path = require('path');
 
 var PORT = 8890;
 
-var app = require('../issuer');
+var app = require('../app');
 app.listen(PORT);
 
 function querify(obj){

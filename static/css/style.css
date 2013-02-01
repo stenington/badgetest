@@ -18,3 +18,9 @@ form {
 .mt {
   margin-top: 35px;
 }
+.servers {
+  border-color: #c09853;
+}
+.servers.loaded {
+  border-color: #468847;
+}
