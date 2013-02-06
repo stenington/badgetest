@@ -24,6 +24,15 @@ form {
 .hmt {
   margin-top: 18px;
 }
+.load {
+  font-size: smaller;
+  line-height: inherit;
+  vertical-align: baseline;
+  color: #999;
+}
+.load img {
+  height: 4px;
+}
 .servers {
   border-color: #c09853;
 }

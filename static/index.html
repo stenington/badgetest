@@ -23,7 +23,11 @@
         <label><input data-bind="checked: nonUnique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
         <label><input data-bind="checked: noModal" type="checkbox" title="to use the modaless workflow" /> modaless</label>
         <br/>
-        <input data-bind="enable: apiLoaded" type="submit" value="Go"/>
+        <div class="load" data-bind="visible: !apiLoaded()">
+          <span data-bind="text: 'Loading from ' + selectedServer().name">Loading from...</span>
+          <img src="img/spinner.gif"/>
+        </div>
+        <input data-bind="visible: apiLoaded" type="submit" value="Go"/>
       </form>
       <hr>
       <a class="toggle" data-bind="click: toggleAdvanced, text: advancedToggleText">Advanced options</a>
