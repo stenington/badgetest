@@ -42,8 +42,8 @@
           </tr>
           <!-- /ko -->
           <tr class="add-control">
-            <td><input data-bind="value: serverName" type="text" placeholder="name" /></td>
-            <td><input data-bind="value: serverUrl" type="text" placeholder="issuer.js url" /></td>
+            <td><input data-bind="value: serverName, valueUpdate: 'keyup'" type="text" placeholder="name" /></td>
+            <td><input data-bind="value: serverUrl, valueUpdate: 'keyup'" type="text" placeholder="issuer.js url" /></td>
             <td class="controls"><input data-bind="enable: serverName && serverUrl, click: addServer" type="button" value="Add" /></td>
           </tr>
           </tbody>
@@ -159,6 +159,9 @@
         self.serverName('');
         self.serverUrl('');
       };
+      self.serverAddable = ko.computed(function(){
+        return self.serverName() && self.serverUrl();
+      });
       self.removeServer = function(server) {
         var i = self.servers.indexOf(server);
         self.servers.splice(i, 1);
