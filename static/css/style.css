@@ -16,13 +16,43 @@ form {
   max-height: 200px;
 }
 .mt {
-  margin-top: 35px;
+  margin-top: 36px;
+}
+.mb {
+  margin-bottom: 36px;
+}
+.hmt {
+  margin-top: 18px;
 }
 .servers {
   border-color: #c09853;
 }
 .servers.loaded {
   border-color: #468847;
+}
+.server-config thead {
+  border-bottom: 1px solid #aaa;
+  margin-bottom: 4px;
+}
+.server-config .add-control {
+  border-top: 1px solid #aaa;
+}
+.server-config .add-control td {
+  padding-top: 8px;
+}
+.server-config tbody tr:nth-child(2n) {
+  background: #eee;
+}
+.server-config tbody tr.add-control {
+  background: #fff;
+}
+.server-config th,
+.server-config td {
+  text-align: left;
+  padding: 2px 8px;
+}
+.server-config .controls {
+  padding-left: 24px;
 }
 .toggle {
   text-decoration: underline;

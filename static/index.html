@@ -27,14 +27,29 @@
       </form>
       <hr>
       <a class="toggle" data-bind="click: toggleAdvanced, text: advancedToggleText">Advanced options</a>
-      <form data-bind="visible: showAdvanced" class="mt">
-        <input data-bind="value: serverName" type="text" placeholder="name" />
-        <input data-bind="value: serverUrl" type="text" placeholder="issuer.js url" />
-        <input data-bind="enable: serverName && serverUrl, click: addServer" type="button" value="Add Backpack server" />
-        <br>
-        <input data-bind="enable: servers().length, click: removeServer" type="button" value="Remove selected server" />
-        <input data-bind="click: resetServers" type="button" value="Reset servers" />
-      </form>
+      <div data-bind="visible: showAdvanced" class="mt mb">
+        <table class="server-config">
+          <thead>
+            <tr><th colspan="3">Servers:</th></tr>
+            <tr><th>Name</th><th>Url</th><th></th></tr>
+          </thead>
+          <tbody>
+          <!-- ko foreach: servers -->
+          <tr>
+            <td data-bind="text: name">NAME</td>
+            <td data-bind="text: url">URL</td>
+            <td class="controls"><input data-bind="click: $root.removeServer" type="button" value="Remove" /></td>
+          </tr>
+          <!-- /ko -->
+          <tr class="add-control">
+            <td><input data-bind="value: serverName" type="text" placeholder="name" /></td>
+            <td><input data-bind="value: serverUrl" type="text" placeholder="issuer.js url" /></td>
+            <td class="controls"><input data-bind="enable: serverName && serverUrl, click: addServer" type="button" value="Add" /></td>
+          </tr>
+          </tbody>
+        </table>
+        <input class="hmt" data-bind="click: resetServers" type="button" value="Reset servers" />
+      </div>
     </div>
   </div>
 
@@ -90,7 +105,7 @@
 
       self.count = ko.observable(1);
       self.email = ko.observable();
-      var servers = localStorage.servers ? JSON.parse(localStorage.servers) : defaultServers;
+      var servers = localStorage.servers ? JSON.parse(localStorage.servers) : defaultServers.slice(0);
       self.servers = ko.observableArray(servers);
       self.servers.subscribe(function(servers) {
         localStorage.servers = JSON.stringify(servers);
@@ -104,12 +119,14 @@
       self.reloadAPI = function(viewModel, evt) {
         self.apiLoaded(false);
         var server = viewModel.selectedServer();
-        console.log("Reloading Issuer API from", server.name, "<" + server.url + ">");
-        $('#issuer-api').reloadFrom(server.url)
-          .success(function() {
-            console.log("Issuer API loaded from", server.name);
-            self.apiLoaded(true); 
-          });
+        if (server) {
+          console.log("Reloading Issuer API from", server.name, "<" + server.url + ">");
+          $('#issuer-api').reloadFrom(server.url)
+            .success(function() {
+              console.log("Issuer API loaded from", server.name);
+              self.apiLoaded(true); 
+            });
+        }
       };
       self.apiLoaded = ko.observable(false);
 
@@ -142,12 +159,12 @@
         self.serverName('');
         self.serverUrl('');
       };
-      self.removeServer = function() {
-        var i = self.servers.indexOf(self.selectedServer());
+      self.removeServer = function(server) {
+        var i = self.servers.indexOf(server);
         self.servers.splice(i, 1);
       };
       self.resetServers = function() {
-        self.servers(defaultServers);
+        self.servers(defaultServers.slice(0));
       };
 
       self.showAdvanced = ko.observable(false);
