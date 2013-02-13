@@ -60,14 +60,14 @@ var ViewModel = function() {
     self.apiLoaded(false);
     var server = viewModel.selectedServer();
     if (server) {
-      console.log("Reloading Issuer API from", server.name, "<" + server.url + ">");
+      log("Reloading Issuer API from", server.name, "<" + server.url + ">");
       $('#issuer-api').reloadFrom(server.url)
         .success(function() {
-          console.log("Issuer API loaded from", server.name);
+          log("Issuer API loaded from", server.name);
           self.apiLoaded(true); 
         })
         .fail(function() {
-          console.log("FAAAAAIL"); 
+          log("FAAAAAIL"); 
         });
     }
   };
@@ -81,7 +81,7 @@ var ViewModel = function() {
         hashed: self.hash(),
         unique: !self.nonUnique()
       });
-      console.log('Assertions', assertions);
+      log('Assertions', assertions);
       if(self.noModal()){
         OpenBadges.issue_no_modal(assertions);
       }
@@ -90,7 +90,7 @@ var ViewModel = function() {
       }
     }
     catch (ex) {
-      console.log(ex);
+      log(ex);
     }
     return false;
   };
