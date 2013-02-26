@@ -1,4 +1,6 @@
-# badgetest
+# BadgeTest
+
+Read the [How To](https://github.com/stenington/badgetest/wiki/How-To) for basic usage instructions.
 
 ## Frontend
 
