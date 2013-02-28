@@ -1,6 +1,7 @@
 var express = require('express');
 var path = require('path');
 var fs = require('fs');
+var request = require('request');
 var helpers = require('./helpers');
 
 var PORT = process.env.PORT || 8889;
@@ -10,12 +11,7 @@ function makeHash (email, salt) {
   return 'sha256$' + sha.update(email + salt).digest('hex');
 }
 
-var app = express.createServer();
-app.use(express.static(path.join(__dirname, "static")));
-
-var defaultAssertion = JSON.parse(fs.readFileSync(path.join(__dirname, 'defaultAssertion.json')));
-
-app.use(function buildAssertion(request, response, next){
+function buildAssertion(request, response, next){
   request.assertion = helpers.defaults({ recipient: request.query.email }, defaultAssertion);
   if (request.query.override) {
     try {
@@ -31,13 +27,53 @@ app.use(function buildAssertion(request, response, next){
   else {
     next();
   }
+}
+
+function proxyResponse(res, err, bpcRes, body) {
+  if (err) return res.send(502);
+  return res.send({
+    body: body,
+    statusCode: bpcRes.statusCode,
+    headers: {
+      'www-authenticate': bpcRes.headers['www-authenticate']
+    }
+  });
+}
+
+var app = express.createServer();
+app.use(express.bodyParser());
+app.use(express.static(path.join(__dirname, "static")));
+
+var defaultAssertion = JSON.parse(fs.readFileSync(path.join(__dirname, 'defaultAssertion.json')));
+
+app.post('/refresh', function(req, res) {
+  var bpcInfo = req.body;
+  request.post({
+    url: bpcInfo.api_root + '/token',
+    json: {
+      grant_type: "refresh_token",
+      refresh_token: bpcInfo.refresh_token
+    },
+    timeout: 10000
+  }, proxyResponse.bind(null, res));
 });
-  
-app.get('/raw.json', function (request, response) {
+
+app.post('/issue', function(req, res) {
+  var bpcInfo = req.body.backpackConnect;
+  var b64Token = new Buffer(bpcInfo.access_token).toString('base64');
+  request.post({
+    url: bpcInfo.api_root + '/issue',
+    headers: {'authorization': 'Bearer ' + b64Token},
+    json: {badge: req.body.assertions[0]},
+    timeout: 10000
+  }, proxyResponse.bind(null, res));
+});
+
+app.get('/raw.json', buildAssertion, function (request, response) {
   return response.send(request.assertion);
 });
 
-app.get('/hashed.json', function (request, response) {
+app.get('/hashed.json', buildAssertion, function (request, response) {
   var salt = 'yah';
   var assertion = request.assertion;
   assertion.recipient = makeHash(assertion.recipient, salt);
@@ -45,7 +81,7 @@ app.get('/hashed.json', function (request, response) {
   return response.send(assertion);
 });
 
-app.get('/invalid.json', function (request, response) {
+app.get('/invalid.json', buildAssertion, function (request, response) {
   return response.send({
     recipient: request.query.email||'brian@mozillafoundation.org',
     evidence: '/whatever.html',

@@ -20,6 +20,7 @@
           title="backpack server" class="servers"></select>.
         <br/>
         <label><input data-bind="checked: hash" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
+        <label><input data-bind="checked: backpackConnect" type="checkbox" title="to test Backpack Connect support" /> use Backpack Connect</label>
         <label><input data-bind="checked: nonUnique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
         <label><input data-bind="checked: noModal" type="checkbox" title="to use the modaless workflow" /> modaless</label>
         <br/>
@@ -35,13 +36,20 @@
         <table class="server-config">
           <thead>
             <tr><th colspan="3">Servers:</th></tr>
-            <tr><th>Name</th><th>Url</th><th></th></tr>
+            <tr><th>Name</th><th>Url</th><th>Tokens</th><th></th></tr>
           </thead>
           <tbody>
           <!-- ko foreach: servers -->
           <tr>
             <td data-bind="text: name">NAME</td>
             <td data-bind="text: url">URL</td>
+            <td>
+              <!-- ko if: backpackConnect -->
+              <div>access:&nbsp;<span data-bind="text: backpackConnect.access_token"></span></div>
+              <div>refresh:&nbsp;<span data-bind="text: backpackConnect.refresh_token"></span></div>
+              <input data-bind="click: $root.refreshServerTokens" value="Refresh" type="button">
+              <!-- /ko -->
+            </td>
             <td class="controls"><input data-bind="click: $root.removeServer" type="button" value="Remove" /></td>
           </tr>
           <!-- /ko -->
