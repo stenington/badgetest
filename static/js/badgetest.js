@@ -16,9 +16,19 @@ function buildAssertions(spec){
       }
     };
 
-    if(spec.unique){
+    if (spec.unique) {
       var millis = (new Date()).getTime();
       overrides.badge.name = 'Badge ' + millis + '-' + (i+1);
+    }
+    else {
+      overrides.badge.name = 'Non-unique Badge';
+    }
+
+    if (spec.generateImages) {
+      var hash = md5(overrides.badge.name);
+      overrides.badge.image = 
+        'http://vanillicon.com/' + hash + '.png';
+        //'http://permissiondenied.net/identicon/150/' + hash + '.png';
     }
 
     assertion += '&override=' + encodeURIComponent(JSON.stringify(overrides));
@@ -52,6 +62,7 @@ var ViewModel = function() {
   });
   self.selectedServer = ko.observable();
 
+  self.generateImages = ko.observable(false);
   self.hash = ko.observable(false);
   self.nonUnique = ko.observable(false);
   self.noModal = ko.observable(false);
@@ -79,7 +90,8 @@ var ViewModel = function() {
         count: self.count(),
         email: self.email(),
         hashed: self.hash(),
-        unique: !self.nonUnique()
+        unique: !self.nonUnique(),
+        generateImages: self.generateImages()
       });
       log('Assertions', assertions);
       if(self.noModal()){
