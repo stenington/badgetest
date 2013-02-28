@@ -30,7 +30,7 @@ Unique badge images can be generated using [vanillicons][]. Check the *generate 
 checkbox and each assertion will use the vanillicon for its badge name as the badge 
 graphic.
 
-[vanillicons]: http://vanillicons.com
+[vanillicons]: http://vanillicon.com
 
 ### Email
 
