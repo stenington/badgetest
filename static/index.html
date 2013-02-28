@@ -25,7 +25,7 @@
         <label><input data-bind="checked: noModal" type="checkbox" title="to use the modaless workflow" /> modaless</label>
         <br/>
         <div class="load" data-bind="visible: !apiLoaded()">
-          <span data-bind="text: 'Loading from ' + selectedServer().name">Loading from...</span>
+          <span data-bind="text: 'Loading from ' + selectedServer().name()">Loading from...</span>
           <img src="img/spinner.gif"/>
         </div>
         <input data-bind="visible: apiLoaded" type="submit" value="Go"/>
@@ -44,9 +44,9 @@
             <td data-bind="text: name">NAME</td>
             <td data-bind="text: url">URL</td>
             <td>
-              <!-- ko if: backpackConnect -->
-              <div>access:&nbsp;<span data-bind="text: backpackConnect.access_token"></span></div>
-              <div>refresh:&nbsp;<span data-bind="text: backpackConnect.refresh_token"></span></div>
+              <!-- ko if: access_token -->
+              <div>access:&nbsp;<span data-bind="text: access_token"></span></div>
+              <div>refresh:&nbsp;<span data-bind="text: refresh_token"></span></div>
               <input data-bind="click: $root.refreshServerTokens" value="Refresh" type="button">
               <!-- /ko -->
             </td>

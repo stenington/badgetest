@@ -27,6 +27,14 @@ function buildAssertions(spec){
   return assertions;
 }
 
+function Server(options) {
+  this.name = ko.observable(options.name);
+  this.url = ko.observable(options.url);
+  this.access_token = ko.observable(options.access_token);
+  this.refresh_token = ko.observable(options.refresh_token);
+  this.api_root = ko.observable(options.api_root);
+}
+
 $.fn.extend({                                                   
   reloadFrom: function(scriptUrl){
     this.attr('src', scriptUrl);
@@ -34,28 +42,58 @@ $.fn.extend({
   },  
 });   
 
+// Exactly why knockout doesn't provide something that does this, or
+// is at least capable of observing an array of models, is completely
+// beyond me. -AV
+function syncChangesToLocalStorage(servers, keyName) {
+  var watching = [];
+
+  function save() {
+    if (window.console) console.log("SAVE MODEL");
+    localStorage[keyName] = ko.toJSON(servers);
+  }
+  
+  function observeModel(model) {
+    Object.keys(model).forEach(function(key) {
+      if (model[key] &&
+          typeof(model[key]) == 'function' &&
+          typeof(model[key].subscribe) == 'function') {
+        model[key].subscribe(save);
+      }
+    });
+  }
+
+  function onServersChange() {
+    servers().forEach(function(server) {
+      if (watching.indexOf(server) == -1) {
+        if (window.console) console.log("NOW WATCHING", server.name());
+        watching.push(server);
+        observeModel(server);
+      }
+    });
+    save();
+  }
+  
+  servers.subscribe(onServersChange);
+  onServersChange();
+}
+
 var ViewModel = function() {
   var self = this;
 
   var defaultServers = [
-    { name: 'development', url: 'http://dev.openbadges.org/issuer.js',
-      backpackConnect: null },
-    { name: 'staging', url: 'http://stage.openbadges.org/issuer.js',
-      backpackConnect: null },
-    { name: 'production', url: 'http://beta.openbadges.org/issuer.js',
-      backpackConnect: null }
+    { name: 'development', url: 'http://dev.openbadges.org/issuer.js' },
+    { name: 'staging', url: 'http://stage.openbadges.org/issuer.js' },
+    { name: 'production', url: 'http://beta.openbadges.org/issuer.js' }
   ];
 
   self.count = ko.observable(1);
   self.email = ko.observable();
   var servers = localStorage.servers ? JSON.parse(localStorage.servers) : defaultServers.slice(0);
-  servers.forEach(function(server) {
-    if (!server.backpackConnect) server.backpackConnect = null;
-  });
-  self.servers = ko.observableArray(servers);
-  self.servers.subscribe(function(servers) {
-    localStorage.servers = JSON.stringify(servers);
-  });
+  self.servers = ko.observableArray(servers.map(function(options) {
+    return new Server(options);
+  }));
+  syncChangesToLocalStorage(self.servers, 'servers');
   self.selectedServer = ko.observable();
 
   self.hash = ko.observable(false);
@@ -67,10 +105,10 @@ var ViewModel = function() {
     self.apiLoaded(false);
     var server = viewModel.selectedServer();
     if (server) {
-      log("Reloading Issuer API from", server.name, "<" + server.url + ">");
-      $('#issuer-api').reloadFrom(server.url)
+      log("Reloading Issuer API from", server.name(), "<" + server.url() + ">");
+      $('#issuer-api').reloadFrom(server.url())
         .success(function() {
-          log("Issuer API loaded from", server.name);
+          log("Issuer API loaded from", server.name());
           self.apiLoaded(true); 
         })
         .fail(function() {
@@ -80,7 +118,7 @@ var ViewModel = function() {
   };
   self.apiLoaded = ko.observable(false);
 
-  self._issueViaBackpackConnect = function(assertions) {
+  self._issueViaBackpackConnect = function(assertion) {
     var server = self.selectedServer();
     var issue = function() {
       $.ajax({
@@ -88,8 +126,9 @@ var ViewModel = function() {
         url: '/issue',
         dataType: 'json',
         contentType: 'application/json',
-        data: JSON.stringify({backpackConnect: server.backpackConnect,
-                              assertions: assertions}),
+        data: JSON.stringify({access_token: server.access_token(),
+                              api_root: server.api_root(),
+                              assertion: assertion}),
         success: function(data) {
           alert(JSON.stringify(data, null, 2));
         },
@@ -98,27 +137,24 @@ var ViewModel = function() {
                 xhr.responseText);
         }
       });
-      console.log("YAY ISSUE", server.backpackConnect);
     };
 
     if (!OpenBadges.connect)
       return alert("The selected server doesn't support Backpack Connect.");
-    if (assertions.length > 1)
-      return alert("Only one badge can be sent at a time.");
-    if (server.backpackConnect)
+    if (server.access_token())
       issue();
     else {
       localStorage.polledBackpackConnectResult = "";
       var bpcWindow = window.open("/backpack-connect.html?" + $.param({
-        issuer_js_url: server.url
+        issuer_js_url: server.url()
       }));
       var interval = setInterval(function() {
         if (localStorage.polledBackpackConnectResult) {
           clearInterval(interval);
           var bpcInfo = JSON.parse(localStorage.polledBackpackConnectResult);
-          server.backpackConnect = bpcInfo;
-          alert("Backpack connect successful! You need to reload the page for its contents to be changed now because knockoutjs is CONFUSING AS HELL.");          
-          self.servers.valueHasMutated();
+          server.access_token(bpcInfo.access_token);
+          server.refresh_token(bpcInfo.refresh_token);
+          server.api_root(bpcInfo.api_root);
           issue();
         }
       }, 100);
@@ -134,7 +170,9 @@ var ViewModel = function() {
       });
       log('Assertions', assertions);
       if(self.backpackConnect()){
-        self._issueViaBackpackConnect(assertions);
+        if (assertions.length > 1)
+          return alert("Only one badge can be sent at a time.");
+        self._issueViaBackpackConnect(assertions[0]);
       }
       else if(self.noModal()){
         OpenBadges.issue_no_modal(assertions);
@@ -152,8 +190,10 @@ var ViewModel = function() {
   self.serverName = ko.observable();
   self.serverUrl = ko.observable();
   self.addServer = function() {
-    self.servers.push({ name: self.serverName(), url: self.serverUrl(),
-                        backpackConnect: null });
+    self.servers.push(new Server({
+      name: self.serverName(),
+      url: self.serverUrl()
+    }));
     self.serverName('');
     self.serverUrl('');
   };
@@ -166,13 +206,14 @@ var ViewModel = function() {
       url: '/refresh',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify(server.backpackConnect),
+      data: JSON.stringify({
+        refresh_token: server.refresh_token(),
+        api_root: server.api_root()
+      }),
       success: function(data) {
         if (data.statusCode == 200) {
-          server.backpackConnect.access_token = data.body.access_token;
-          server.backpackConnect.refresh_token = data.body.refresh_token;
-          self.servers.valueHasMutated();
-          alert("Success! You need to reload the page for its contents to be changed now because knockoutjs is CONFUSING AS HELL.");
+          server.access_token(data.body.access_token);
+          server.refresh_token(data.body.refresh_token);
         } else
           alert(JSON.stringify(data, null, 2));
       },

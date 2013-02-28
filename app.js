@@ -47,24 +47,22 @@ app.use(express.static(path.join(__dirname, "static")));
 var defaultAssertion = JSON.parse(fs.readFileSync(path.join(__dirname, 'defaultAssertion.json')));
 
 app.post('/refresh', function(req, res) {
-  var bpcInfo = req.body;
   request.post({
-    url: bpcInfo.api_root + '/token',
+    url: req.body.api_root + '/token',
     json: {
       grant_type: "refresh_token",
-      refresh_token: bpcInfo.refresh_token
+      refresh_token: req.body.refresh_token
     },
     timeout: 10000
   }, proxyResponse.bind(null, res));
 });
 
 app.post('/issue', function(req, res) {
-  var bpcInfo = req.body.backpackConnect;
-  var b64Token = new Buffer(bpcInfo.access_token).toString('base64');
+  var b64Token = new Buffer(req.body.access_token).toString('base64');
   request.post({
-    url: bpcInfo.api_root + '/issue',
+    url: req.body.api_root + '/issue',
     headers: {'authorization': 'Bearer ' + b64Token},
-    json: {badge: req.body.assertions[0]},
+    json: {badge: req.body.assertion},
     timeout: 10000
   }, proxyResponse.bind(null, res));
 });
