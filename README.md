@@ -24,6 +24,14 @@ Badge names are made unique by appending the string `timestamp-n` where
   * the timestamp is in millis, and will be the same for all badges issued in one group
   * and *n* is the badge's number in the group. 
 
+### Unique Images
+
+Unique badge images can be generated using [vanillicons][]. Check the *generate images*
+checkbox and each assertion will use the vanillicon for its badge name as the badge 
+graphic.
+
+[vanillicons]: http://vanillicons.com
+
 ### Email
 
 You can use an actual Persona account connected to your real email, **or** you 
