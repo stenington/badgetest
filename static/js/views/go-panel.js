@@ -15,12 +15,7 @@ define(['backbone', 'assertions'], function(Backbone, buildAssertions) {
           generateImages: $('.generatePNG').is(':checked')
         });
         log('Assertions:', assertions);
-        if ($('.modaless').is(':checked')) {
-          OpenBadges.issue_no_modal(assertions);
-        }
-        else {
-          OpenBadges.issue(assertions);
-        }
+        this.issuerAPI.issue($('.issue-method select').val(), assertions);
       }
       catch (ex) {
         log(ex);
