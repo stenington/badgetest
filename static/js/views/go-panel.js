@@ -11,7 +11,8 @@ define(['backbone', 'assertions'], function(Backbone, buildAssertions) {
           count: $('.badge-count').val(),
           email: $('.email').val(),
           hashed: $('.hashed').is(':checked'),
-          unique: !$('.non-unique').is(':checked')
+          unique: !$('.non-unique').is(':checked'),
+          generateImages: $('.generatePNG').is(':checked')
         });
         log('Assertions:', assertions);
         if ($('.modaless').is(':checked')) {
