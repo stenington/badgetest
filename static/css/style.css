@@ -68,3 +68,8 @@ form {
   font-size: smaller;
   color: #3a87ad;
 }
+.token {
+  font-family: monospace;
+  font-size: smaller;
+  white-space: pre;
+}
