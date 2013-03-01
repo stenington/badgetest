@@ -17,10 +17,10 @@
         <input class="email" type="text" placeholder="email" title="recipient email" /> on
         <span title="backpack server" class="servers"></span>
         <br/>
+        using <span class="issue-method"></span>.
+        <br />
         <label><input class="hashed" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
         <label><input class="non-unique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
-        <label><input class="modaless" type="checkbox" title="to use the modaless workflow" /> modaless</label>
-        <br />
         <label><input class="generatePNG" type="checkbox" title="to generate badge images" /> generate images</label>
         <br/>
         <div class="go-panel">
@@ -78,6 +78,14 @@
     <% }); %>
   </script>
 
+  <script id="issue-methods-template" type="text/html">
+    <select>
+      <% _.each(methods, function(method) { %>
+      <option value="<%= method.key %>"><%= method.name %></option>
+      <% }); %>
+    </select>
+  </script>
+
   <!-- empty script where we'll jam the Issuer API when loaded -->
   <script id="issuer-api"></script>
   
@@ -93,11 +101,12 @@
     'server-list',
     'issuer-api',
     'views/server-select',
+    'views/issue-select',
     'views/server-controls',
     'views/toggle-panel',
     'views/go-panel',
     'jquery'
-  ], function(Server, ServerList, IssuerAPI, ServerSelect, ServerControls, TogglePanel, GoControl, $) {
+  ], function(Server, ServerList, IssuerAPI, ServerSelect, IssueSelect, ServerControls, TogglePanel, GoControl, $) {
 
     var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
     var servers = new ServerList();
@@ -143,8 +152,14 @@
       issuerAPI: issuerAPI
     });
 
+    var issueSelect = new IssueSelect({
+      el: $('.issue-method'),
+      issuerAPI: issuerAPI
+    });
+
     serverSelect.render();
     serversView.render();
+    issueSelect.render();
   });
   </script>
 </body>
