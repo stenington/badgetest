@@ -7,17 +7,9 @@ Read the [How To](https://github.com/stenington/badgetest/wiki/How-To) for basic
 Badgetest is an unimaginatively named utility for issuing some number
 of badges to some email address on a Backpack server.
 
-You can 
+Detailed usage instructions are available on the wiki [How To][] page.
 
-  * hash the email address, 
-  * opt out of uniquifying the badge names (to test duplicate handling) 
-  * and try out the modaless workflow, 
-
-if you so choose.
-
-The standard development, staging, and production Backpack servers are 
-available by default. Additional servers can be added through the advanced
-options. Your configuration is persisted through localStorage.
+[How To]: https://github.com/stenington/badgetest/wiki/How-To
 
 ### Unique Naming
 
