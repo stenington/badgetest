@@ -79,230 +79,33 @@
   <!-- empty script where we'll jam the Issuer API when loaded -->
   <script id="issuer-api"></script>
   
-  <script src="js/es5-shim.js"></script>
-  <script src="js/consolelog.min.js"></script>
+  <script src="vendor/es5-shim.js"></script>
+  <script src="vendor/consolelog.min.js"></script>
 
-  <script src="js/jquery-1.9.1.js"></script>
-  <script src="js/underscore.js"></script>
-  <script src="js/backbone.js"></script>
-  <script src="js/backbone.localStorage.js"></script>
+  <script src="js/require-config.js"></script>
+  <script src="vendor/require.min.js"></script>
 
   <script>
-
-    /** --------------------------------------------- **/
-
-    function buildAssertions(spec){
-      var assertions = [];
-      var origin = $(location).attr('protocol') + '//' + $(location).attr('host'); 
-      var endpoint = spec.hashed ? 'hashed.json' : 'raw.json';
-
-      for (var i = 0; i < spec.count; i++){
-        var assertion = origin 
-          + '/' + endpoint 
-          + '?email=' + encodeURIComponent(spec.email);
-
-        var overrides = {
-          badge: {
-            issuer: {
-              origin: origin
-            }
-          }
-        };
-
-        if(spec.unique){
-          var millis = (new Date()).getTime();
-          overrides.badge.name = 'Badge ' + millis + '-' + (i+1);
-        }
-
-        assertion += '&override=' + encodeURIComponent(JSON.stringify(overrides));
-        assertions[i] = assertion;
-      }
-      return assertions;
-    }
-
-    var IssuerAPI = function(){
-      var self = this;
-
-      var script = $('#issuer-api');
-
-      self.reloadFrom = function(server) {
-        self.trigger('reload', server.get('name'));
-        script.attr('src', server.get('url'));
-        return $.getScript(server.get('url'))
-          .success(function(){
-            self.trigger('success');
-          })
-          .fail(function(){
-            self.trigger('error');
-          });
-      };
-
-      _.extend(self, Backbone.Events);
-    }
-
-    /** --------------------------------------------- **/
-    var Server = Backbone.Model.extend({});
-
-    var ServerList = Backbone.Collection.extend({
-      model: Server,
-      localStorage: new Backbone.LocalStorage("badgetest-serverlist"),
-      initialize: function() {
-        this.on('add', function(server) { server.save(); });
-        this.on('change', function(server) { server.save(); });
-        this.on('remove', function(server) { server.destroy(); });
-      },
-      setDefault: function() {
-        this.update([
-          { name: 'development', url: 'http://dev.openbadges.org/issuer.js' },
-          { name: 'staging', url: 'http://stage.openbadges.org/issuer.js' },
-          { name: 'production', url: 'http://beta.openbadges.org/issuer.js' }
-        ]);
-      }
-    });
-
-    /** --------------------------------------------- **/
-
-    var ServerSelect = Backbone.View.extend({
-      events: {
-        'change .server-select': 'reload'
-      },
-
-      reload: function(evt) { 
-        this.$el.find('.server-select').removeClass('loaded');
-        var index = $(evt.target).val();
-        this.issuerAPI.reloadFrom(this.collection.at(index));
-
-      },
-
-      initialize: function(opts) {
-        this.issuerAPI = opts.issuerAPI;
-        var that = this; 
-        this.issuerAPI.on('success', function(){
-          that.$el.find('.server-select').addClass('loaded');
-        });
-
-        this.listenTo(this.collection, "change", this.render);
-        this.listenTo(this.collection, "add", this.render);
-        this.listenTo(this.collection, "remove", this.render);
-        this.template = _.template($('#server-select-template').html());
-      },
-
-      render: function() {
-        this.$el.html(this.template({ servers: this.collection.toJSON() }));
-      }
-    });
-
-    var ServerControls = Backbone.View.extend({
-      events: {
-        'click .remove': 'remove',
-        'click .add': 'add',
-        'click .reset': 'reset'
-      },
-
-      initialize: function(opts) {
-        this.listenTo(this.collection, "change", this.render);
-        this.listenTo(this.collection, "add", this.render);
-        this.listenTo(this.collection, "remove", this.render);
-        this.template = _.template($('#server-list-template').html());
-      },
-
-      render: function() {
-        var tbody = this.$el.find('.server-config tbody');
-        tbody.find('tr:not(.add-control)').remove();
-        tbody.prepend(this.template({ servers: this.collection.toJSON() }));
-      },
-
-      remove: function(evt) {
-        var index = $(evt.target).attr('data-index');
-        this.collection.remove(this.collection.at(index));
-      },
-
-      add: function(evt) {
-        this.collection.add({
-          name: this.$el.find('.add-control .name').val(),
-          url: this.$el.find('.add-control .url').val()
-        });
-      },
-
-      reset: function(evt) {
-        this.collection.setDefault();
-      }
-    });
-
-    var TogglePanel = Backbone.View.extend({
-      events: {
-        'click .toggle': 'toggle'
-      },
-      
-      initialize: function(opts) {
-        if (opts.startHidden) 
-          this.$el.find('.toggled').toggle(false);
-      }, 
-
-      toggle: function() {
-        this.$el.find('.toggled').slideToggle('fast');
-      }
-    });
-
-    var GoControl = Backbone.View.extend({
-      events: {
-        'click .go': 'go'
-      },
-
-      go: function() {
-        try {
-          var assertions = buildAssertions({
-            count: $('.badge-count').val(),
-            email: $('.email').val(),
-            hashed: $('.hashed').is(':checked'),
-            unique: !$('.non-unique').is(':checked')
-          });
-          log('Assertions:', assertions);
-          if ($('.modaless').is(':checked')) {
-            OpenBadges.issue_no_modal(assertions);
-          }
-          else {
-            OpenBadges.issue(assertions);
-          }
-        }
-        catch (ex) {
-          log(ex);
-        }
-        return false;
-      },
-
-      initialize: function(opts) {
-        this.issuerAPI = opts.issuerAPI;
-        this.$el.find('.loaded').hide();
-        var that = this;
-        this.issuerAPI.on('reload', function(from){ that.loading(from); });
-        this.issuerAPI.on('success', function(){ that.loaded(); });
-      },
-
-      loading: function(from) {
-        this.$el.find('.where').html(from);
-        this.$el.find('.loading').toggle(true);
-        this.$el.find('.loaded').toggle(false);
-      },
-
-      loaded: function() {
-        this.$el.find('.loading').toggle(false);
-        this.$el.find('.loaded').toggle(true);
-      }
-
-    });
-    /** --------------------------------------------- **/
+  require([
+    'server',
+    'server-list',
+    'issuer-api',
+    'views/server-select',
+    'views/server-controls',
+    'views/toggle-panel',
+    'views/go-panel',
+    'jquery'
+  ], function(Server, ServerList, IssuerAPI, ServerSelect, ServerControls, TogglePanel, GoControl, $) {
 
     var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
     var servers = new ServerList();
     if (firstVisit) {
-      log('setting default');
       servers.setDefault();
     }
     else {
       servers.fetch({
         error: function(servers) { 
-          log('error fetching servers, using defaults');
+          log('Error fetching servers, using defaults');
           servers.setDefault(); 
         }
       });
@@ -311,10 +114,10 @@
     var issuerAPI = new IssuerAPI();
     issuerAPI.reloadFrom(servers.at(0));
     issuerAPI.on('reload', function(){
-      log('reloaded');
+      log('Reloaded issuer API');
     });
     issuerAPI.on('error', function(){
-      log('reload error');
+      log('Issuer API reload error');
     });
 
     var advancedOptions = new TogglePanel({
@@ -322,23 +125,25 @@
       startHidden: true
     });
 
+    var goControl = new GoControl({
+      el: $('.go-panel'),
+      issuerAPI: issuerAPI
+    });
+
     var serversView = new ServerControls({
       el: $('.server-controls'),
       collection: servers
     });
+
     var serverSelect = new ServerSelect({
       el: $('.servers'),
       collection: servers,
       issuerAPI: issuerAPI
     });
+
     serverSelect.render();
     serversView.render();
-
-    var goControl = new GoControl({
-      el: $('.go-panel'),
-      issuerAPI: issuerAPI
-    });
-      
+  });
   </script>
 </body>
 </html>
