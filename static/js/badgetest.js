@@ -71,6 +71,8 @@ function syncChangesToLocalStorage(servers, keyName) {
         observeModel(server);
       }
     });
+    // TODO: Stop watching any servers that have been removed from the
+    // observable array.
     save();
   }
   
@@ -86,13 +88,23 @@ var ViewModel = function() {
     { name: 'staging', url: 'http://stage.openbadges.org/issuer.js' },
     { name: 'production', url: 'http://beta.openbadges.org/issuer.js' }
   ];
-
+  var resetServers = function() {
+    localStorage.servers = JSON.stringify(defaultServers);
+  };
+  var loadServers = function() {
+    var servers = JSON.parse(localStorage.servers);
+    self.servers.splice(0, self.servers().length);
+    servers.forEach(function(options) {
+      self.servers.push(new Server(options));
+    });
+  };
   self.count = ko.observable(1);
   self.email = ko.observable();
-  var servers = localStorage.servers ? JSON.parse(localStorage.servers) : defaultServers.slice(0);
-  self.servers = ko.observableArray(servers.map(function(options) {
-    return new Server(options);
-  }));
+  self.servers = ko.observableArray([]);
+  
+  if (!localStorage.servers) resetServers();
+  
+  loadServers();
   syncChangesToLocalStorage(self.servers, 'servers');
   self.selectedServer = ko.observable();
 
@@ -232,7 +244,8 @@ var ViewModel = function() {
     self.servers.splice(i, 1);
   };
   self.resetServers = function() {
-    self.servers(defaultServers.slice(0));
+    resetServers();
+    loadServers();
   };
 
   self.showAdvanced = ko.observable(false);
