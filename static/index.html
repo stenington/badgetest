@@ -48,6 +48,7 @@
               <div>access:&nbsp;<span class="token" data-bind="text: access_token"></span></div>
               <div>refresh:&nbsp;<span class="token" data-bind="text: refresh_token"></span></div>
               <input data-bind="click: $root.refreshServerTokens" value="Refresh" type="button">
+              <input data-bind="click: $root.forgetServerTokens" value="Forget" type="button">
               <!-- /ko -->
             </td>
             <td class="controls"><input data-bind="click: $root.removeServer" type="button" value="Remove" /></td>

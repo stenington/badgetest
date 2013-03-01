@@ -200,6 +200,10 @@ var ViewModel = function() {
   self.serverAddable = ko.computed(function(){
     return self.serverName() && self.serverUrl();
   });
+  self.forgetServerTokens = function(server) {
+    server.access_token(null);
+    server.refresh_token(null);
+  };
   self.refreshServerTokens = function(server) {
     $.ajax({
       type: 'POST',
