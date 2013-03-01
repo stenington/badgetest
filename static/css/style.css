@@ -33,10 +33,10 @@ form {
 .load img {
   height: 4px;
 }
-.servers {
+.server-select {
   border-color: #c09853;
 }
-.servers.loaded {
+.server-select.loaded {
   border-color: #468847;
 }
 .server-config thead {
