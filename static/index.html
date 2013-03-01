@@ -12,59 +12,138 @@
   <div class="top mt">
     <div class="top-inner">
       <img class="badge" src="img/badge.png"/>
-      <form class="mt" data-bind="submit: issue">
-        Issue <input data-bind="value: count" type="text" title="number of badges" /> badge(s) to
-        <input data-bind="value: email" type="text" placeholder="email" title="recipient email" /> on
-        <select data-bind="options: servers, optionsText: 'name', value: selectedServer, 
-          event: { change: reloadAPI }, css: { loaded: apiLoaded() }" 
-          title="backpack server" class="servers"></select>.
+      <form class="mt">
+        Issue <input class="badge-count" type="text" title="number of badges" value="1" /> badge(s) to
+        <input class="email" type="text" placeholder="email" title="recipient email" /> on
+        <span title="backpack server" class="servers"></span>
         <br/>
-        <label><input data-bind="checked: hash" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
-        <label><input data-bind="checked: nonUnique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
-        <label><input data-bind="checked: noModal" type="checkbox" title="to use the modaless workflow" /> modaless</label>
+        <label><input class="hashed" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
+        <label><input class="non-unique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
+        <label><input class="modaless" type="checkbox" title="to use the modaless workflow" /> modaless</label>
         <br/>
-        <div class="load" data-bind="visible: !apiLoaded()">
-          <span data-bind="text: 'Loading from ' + selectedServer().name">Loading from...</span>
-          <img src="img/spinner.gif"/>
+        <div class="go-panel">
+          <div class="loading">
+            Loading from <span class="where"></span>...
+            <img src="img/spinner.gif"/>
+          </div>
+          <div class="loaded">
+            <input class="go" type="submit" value="Go"/>
+          </div>
         </div>
-        <input data-bind="visible: apiLoaded" type="submit" value="Go"/>
       </form>
       <hr>
-      <a class="toggle" data-bind="click: toggleAdvanced, text: advancedToggleText">Advanced options</a>
-      <div data-bind="visible: showAdvanced" class="mt mb">
-        <table class="server-config">
-          <thead>
-            <tr><th colspan="3">Servers:</th></tr>
-            <tr><th>Name</th><th>Url</th><th></th></tr>
-          </thead>
-          <tbody>
-          <!-- ko foreach: servers -->
-          <tr>
-            <td data-bind="text: name">NAME</td>
-            <td data-bind="text: url">URL</td>
-            <td class="controls"><input data-bind="click: $root.removeServer" type="button" value="Remove" /></td>
-          </tr>
-          <!-- /ko -->
-          <tr class="add-control">
-            <td><input data-bind="value: serverName, valueUpdate: 'keyup'" type="text" placeholder="name" /></td>
-            <td><input data-bind="value: serverUrl, valueUpdate: 'keyup'" type="text" placeholder="issuer.js url" /></td>
-            <td class="controls"><input data-bind="enable: serverName && serverUrl, click: addServer" type="button" value="Add" /></td>
-          </tr>
-          </tbody>
-        </table>
-        <input class="hmt" data-bind="click: resetServers" type="button" value="Reset servers" />
+      <div class="advanced">
+        <a class="toggle">Advanced options</a>
+        <div class="mt mb server-controls toggled">
+          <table class="server-config">
+            <thead>
+              <tr><th colspan="3">Servers:</th></tr>
+              <tr><th>Name</th><th>Url</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr class="add-control">
+                <td><input type="text" class="name" placeholder="name" /></td>
+                <td><input type="text" class="url" placeholder="issuer.js url" /></td>
+                <td class="controls"><input type="button" value="Add" class="add"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <input class="hmt reset" type="button" value="Reset servers" />
+        </div>
       </div>
     </div>
   </div>
 
+  <div class="test-area"></div>
+
+  <script id="server-select-template" type="text/html">
+    <select class="server-select">
+      <% _.each(servers, function(server, index) { %>
+      <option value="<%= index %>"><%= server.name %></option>
+      <% }); %>
+    </select>
+  </script>
+
+  <script id="server-list-template" type="text/html">
+    <% _.each(servers, function(server, index) { %>
+    <tr>
+      <td><%= server.name %></td>
+      <td><%= server.url %></td>
+      <td class="controls">
+        <input class="remove" type="button" value="Remove" data-index="<%= index %>"/>
+      </td>
+    </tr>
+    <% }); %>
+  </script>
+
   <!-- empty script where we'll jam the Issuer API when loaded -->
   <script id="issuer-api"></script>
   
-  <script src="js/es5-shim.js"></script>
-  <script src="js/consolelog.min.js"></script>
+  <script src="vendor/es5-shim.js"></script>
+  <script src="vendor/consolelog.min.js"></script>
 
-  <script src="js/jquery.min.js"></script>
-  <script src="js/knockout.js"></script>
-  <script src="js/badgetest.js"></script>
+  <script src="js/require-config.js"></script>
+  <script src="vendor/require.min.js"></script>
+
+  <script>
+  require([
+    'server',
+    'server-list',
+    'issuer-api',
+    'views/server-select',
+    'views/server-controls',
+    'views/toggle-panel',
+    'views/go-panel',
+    'jquery'
+  ], function(Server, ServerList, IssuerAPI, ServerSelect, ServerControls, TogglePanel, GoControl, $) {
+
+    var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
+    var servers = new ServerList();
+    if (firstVisit) {
+      servers.setDefault();
+    }
+    else {
+      servers.fetch({
+        error: function(servers) { 
+          log('Error fetching servers, using defaults');
+          servers.setDefault(); 
+        }
+      });
+    }
+
+    var issuerAPI = new IssuerAPI();
+    issuerAPI.reloadFrom(servers.at(0));
+    issuerAPI.on('reload', function(){
+      log('Reloaded issuer API');
+    });
+    issuerAPI.on('error', function(){
+      log('Issuer API reload error');
+    });
+
+    var advancedOptions = new TogglePanel({
+      el: $('.advanced'),
+      startHidden: true
+    });
+
+    var goControl = new GoControl({
+      el: $('.go-panel'),
+      issuerAPI: issuerAPI
+    });
+
+    var serversView = new ServerControls({
+      el: $('.server-controls'),
+      collection: servers
+    });
+
+    var serverSelect = new ServerSelect({
+      el: $('.servers'),
+      collection: servers,
+      issuerAPI: issuerAPI
+    });
+
+    serverSelect.render();
+    serversView.render();
+  });
+  </script>
 </body>
 </html>
