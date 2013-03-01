@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "api-easy": "~0.2",
+    "request": "2.14.0",
     "express": "~2",
     "vows": "~0.6"
   },
