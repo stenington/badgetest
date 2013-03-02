@@ -111,84 +111,12 @@
     var ServerControls = require('views/server-controls');
     var TogglePanel = require('views/toggle-panel');
     var GoControl = require('views/go-panel');
+    var UserChoices = require('user-choices');
+    var ChoiceWatcher = require('views/choice-watcher');
     var config = require('config');
     var $ = require('jquery');
 
     $('#image-size').val(config.defaultBadgeImageSize);
-
-    var Backbone = require('backbone');
-
-    var UserChoice = Backbone.Model.extend({});
-    var UserChoices = Backbone.Collection.extend({
-      model: UserChoice,
-      localStorage: new Backbone.LocalStorage("badgetest-userchoices")
-    });
-
-    var userChoices = new UserChoices();
-    userChoices.fetch();
-    userChoices.on('change', function(model){ console.log('change', model); });
-    userChoices.on('add', function(model){ console.log('add', model); });
-    userChoices.on('remove', function(model){ console.log('remove', model); });
-    userChoices.on('change', function(model){ model.save(); });
-    userChoices.on('add', function(model){ model.save(); });
-    userChoices.on('remove', function(model){ model.save(); });
-
-    var ChoiceWatcher = Backbone.View.extend({
-      events: {
-        'change select': 'recordSelect',
-        'click input[type=checkbox]': 'recordCheckbox',
-        'change input[type=text]': 'recordText'
-      },
-
-      recordSelect: function(evt) {
-        var el = $(evt.target);
-        this.collection.add({
-          type: 'select',
-          id: el.attr('id'),
-          value: el.val()
-        }, { merge: true });
-      },
-
-      recordCheckbox: function(evt) {
-        var el = $(evt.target);
-        this.collection.add({
-          type: 'checkbox',
-          id: el.attr('id'),
-          value: el.prop('checked')
-        }, { merge: true });
-      },
-
-      recordText: function(evt) {
-        var el = $(evt.target);
-        this.collection.add({
-          type: 'text',
-          id: el.attr('id'),
-          value: el.val()
-        }, { merge: true });
-      },
-
-      initialize: function() {
-        this.collection.each(function(el) {
-          var el = el.toJSON();
-          var id = '#' + el.id;
-          console.log(el);
-          switch (el.type) {
-            case 'checkbox':
-              $(id).prop('checked', el.value);
-              break;
-            case 'select':
-            case 'text':
-              $(id).val(el.value);
-              break;
-          }
-        });
-      }
-    });
-    var choiceWatcher = new ChoiceWatcher({
-      el: $('body'),
-      collection: userChoices
-    });
->>>>>>> Spike on making badgetest remember user choices
 
     var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
     var servers = new ServerList();
@@ -203,6 +131,14 @@
         }
       });
     }
+
+    var userChoices = new UserChoices();
+    userChoices.fetch();
+    var choiceWatcher = new ChoiceWatcher({
+      el: $('body'),
+      collection: userChoices
+    });
+    choiceWatcher.setChoices(); // set choices for non-rendered elements
 
     var issuerAPI = new IssuerAPI();
     issuerAPI.reloadFrom(servers.at(0));
@@ -242,6 +178,16 @@
     serverSelect.render();
     serversView.render();
     issueSelect.render();
+
+    choiceWatcher.setChoices({
+      id: 'server-select'
+    });
+    issuerAPI.once('done', function(){
+      choiceWatcher.setChoices({
+        id: 'method-select'
+      });
+    });
+
   });
   require(['main'], function(){});
   </script>
