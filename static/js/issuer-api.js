@@ -43,8 +43,10 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
           OpenBadges.issue_no_modal(assertions);
           break;
         case 'connect': 
-          alert('Not yet, bro!');
-          // TODO: Backpack Connect
+          OpenBadges.connect({
+            callback: window.location.pathname,
+            scope: ["issue"]
+          });
       }
     };
 
