@@ -8,11 +8,11 @@ define(['backbone', 'assertions'], function(Backbone, buildAssertions) {
     go: function() {
       try {
         var assertions = buildAssertions({
-          count: $('.badge-count').val(),
-          email: $('.email').val(),
-          hashed: $('.hashed').is(':checked'),
-          unique: !$('.non-unique').is(':checked'),
-          generateImages: $('.generatePNG').is(':checked')
+          count: $('#badge-count').val(),
+          email: $('#email').val(),
+          hashed: $('#hashed').is(':checked'),
+          unique: !$('#non-unique').is(':checked'),
+          generateImages: $('#generatePNG').is(':checked')
         });
         log('Assertions:', assertions);
         this.issuerAPI.issue($('.issue-method select').val(), assertions);

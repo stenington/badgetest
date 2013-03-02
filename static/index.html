@@ -13,15 +13,15 @@
     <div class="top-inner">
       <img class="badge" src="img/badge.png"/>
       <form class="mt">
-        Issue <input class="badge-count" type="text" title="number of badges" value="1" /> badge(s) to
-        <input class="email" type="text" placeholder="email" title="recipient email" /> on
+        Issue <input id="badge-count" type="text" title="number of badges" value="1" /> badge(s) to
+        <input id="email" type="text" placeholder="email" title="recipient email" /> on
         <span title="backpack server" class="servers"></span>
         <br/>
         using <span class="issue-method"></span>.
         <br />
-        <label><input class="hashed" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
-        <label><input class="non-unique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
-        <label><input class="generatePNG" type="checkbox" title="to generate badge images" /> generate images</label>
+        <label><input id="hashed" type="checkbox" title="to test hashed/unhashed email support" /> hash email</label>
+        <label><input id="non-unique" type="checkbox" title="to test duplicate badge handling" /> don't uniquify</label>
+        <label><input id="generatePNG" type="checkbox" title="to generate badge images" /> generate images</label>
         <br/>
         <div class="go-panel">
           <div class="loading">
@@ -59,7 +59,7 @@
   <div class="test-area"></div>
 
   <script id="server-select-template" type="text/html">
-    <select class="server-select">
+    <select id="server-select">
       <% _.each(servers, function(server, index) { %>
       <option value="<%= index %>"><%= server.name %></option>
       <% }); %>
@@ -79,7 +79,7 @@
   </script>
 
   <script id="issue-methods-template" type="text/html">
-    <select>
+    <select id="method-select">
       <% _.each(methods, function(method) { %>
       <option value="<%= method.key %>"><%= method.name %></option>
       <% }); %>
@@ -96,17 +96,17 @@
   <script src="vendor/require.min.js"></script>
 
   <script>
-  require([
-    'server',
-    'server-list',
-    'issuer-api',
-    'views/server-select',
-    'views/issue-select',
-    'views/server-controls',
-    'views/toggle-panel',
-    'views/go-panel',
-    'jquery'
-  ], function(Server, ServerList, IssuerAPI, ServerSelect, IssueSelect, ServerControls, TogglePanel, GoControl, $) {
+  define('main', function(require) {
+    var Server = require('server');
+    var ServerList = require('server-list');
+    var IssuerAPI = require('issuer-api');
+    var ServerSelect = require('views/server-select');
+    var IssueSelect = require('views/issue-select');
+    var ServerControls = require('views/server-controls');
+    var TogglePanel = require('views/toggle-panel');
+    var GoControl = require('views/go-panel');
+    var $ = require('jquery');
+
 
     var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
     var servers = new ServerList();
@@ -161,6 +161,7 @@
     serversView.render();
     issueSelect.render();
   });
+  require(['main'], function(){});
   </script>
 </body>
 </html>

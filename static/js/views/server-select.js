@@ -2,11 +2,11 @@ define(['backbone', 'underscore'], function(Backbone, _) {
 
   var ServerSelect = Backbone.View.extend({
     events: {
-      'change .server-select': 'reload'
+      'change select': 'reload'
     },
 
     reload: function(evt) { 
-      this.$el.find('.server-select').removeClass('loaded');
+      this.$el.find('select').removeClass('loaded');
       var index = $(evt.target).val();
       this.issuerAPI.reloadFrom(this.collection.at(index));
 
@@ -16,7 +16,7 @@ define(['backbone', 'underscore'], function(Backbone, _) {
       this.issuerAPI = opts.issuerAPI;
       var that = this; 
       this.issuerAPI.on('success', function(){
-        that.$el.find('.server-select').addClass('loaded');
+        that.$el.find('.select').addClass('loaded');
       });
 
       this.listenTo(this.collection, "change", this.render);
