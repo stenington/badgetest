@@ -10,9 +10,9 @@ define(['server', 'backbone', 'localStorage'], function(Server, Backbone, LocalS
     },
     setDefault: function() {
       this.update([
-        { name: 'development', url: 'http://dev.openbadges.org/issuer.js' },
-        { name: 'staging', url: 'http://stage.openbadges.org/issuer.js' },
-        { name: 'production', url: 'http://beta.openbadges.org/issuer.js' }
+        { name: 'development', url: 'http://dev.openbadges.org/' },
+        { name: 'staging', url: 'http://stage.openbadges.org/' },
+        { name: 'production', url: 'http://beta.openbadges.org/' }
       ]);
     }
   });
