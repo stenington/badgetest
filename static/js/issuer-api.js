@@ -84,7 +84,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
 
       if (currentXHR) currentXHR.abort();
       script.attr('src', server.issuerURL());
-      return $.getScript(server.issuerURL())
+      currentXHR =  $.getScript(server.issuerURL())
         .success(function(){
           setMethods();
           self.trigger('success');
@@ -94,6 +94,8 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
           self.trigger('error');
           self.trigger('done');
         });
+
+      return currentXHR;
     };
   
     self.issue = function(method, assertions) {
