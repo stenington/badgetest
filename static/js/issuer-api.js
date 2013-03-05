@@ -23,8 +23,8 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
       self.availableMethods = [];
       self.trigger('reload', server.get('name'));
 
-      script.attr('src', server.get('url'));
-      return $.getScript(server.get('url'))
+      script.attr('src', server.issuerURL());
+      return $.getScript(server.issuerURL())
         .success(function(){
           setMethods();
           self.trigger('success');
