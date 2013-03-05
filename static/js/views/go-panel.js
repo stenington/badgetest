@@ -1,4 +1,20 @@
-define(['backbone', 'assertions'], function(Backbone, buildAssertions) {
+define(['backbone', 'assertions', 'config'], function(Backbone, buildAssertions, config) {
+
+  function getOptions() {
+    var generateImages = false;
+    if ($('#generatePNG').is(':checked')) {
+      generateImages = parseInt($('#image-size').val(), 10) || config.defaultBadgeImageSize;
+      console.log(generateImages);
+    }
+
+    return {
+      count: $('#badge-count').val(),
+      email: $('#email').val(),
+      hashed: $('#hashed').is(':checked'),
+      unique: !$('#non-unique').is(':checked'),
+      generateImages: generateImages
+    };
+  }
 
   var GoControl = Backbone.View.extend({
     events: {
@@ -7,13 +23,7 @@ define(['backbone', 'assertions'], function(Backbone, buildAssertions) {
 
     go: function() {
       try {
-        var assertions = buildAssertions({
-          count: $('#badge-count').val(),
-          email: $('#email').val(),
-          hashed: $('#hashed').is(':checked'),
-          unique: !$('#non-unique').is(':checked'),
-          generateImages: $('#generatePNG').is(':checked')
-        });
+        var assertions = buildAssertions(getOptions());
         log('Assertions:', assertions);
         this.issuerAPI.issue($('.issue-method select').val(), assertions);
       }

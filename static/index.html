@@ -36,21 +36,27 @@
       <hr>
       <div class="advanced">
         <a class="toggle">Advanced options</a>
-        <div class="mt mb server-controls toggled">
-          <table class="server-config">
-            <thead>
-              <tr><th colspan="3">Servers:</th></tr>
-              <tr><th>Name</th><th>Url</th><th></th></tr>
-            </thead>
-            <tbody>
-              <tr class="add-control">
-                <td><input type="text" class="name" placeholder="name" /></td>
-                <td><input type="text" class="url" placeholder="issuer.js url" /></td>
-                <td class="controls"><input type="button" value="Add" class="add"/></td>
-              </tr>
-            </tbody>
-          </table>
-          <input class="hmt reset" type="button" value="Reset servers" />
+        <div class="toggled">
+          <div class="panel">
+            <h3>Generated badge images:</h3>
+            <label>Size: <input id="image-size" class="right narrow" type="text" /> px</label>
+          </div>
+          <div class="panel server-controls">
+            <h3>Servers:</h3>
+            <table class="server-config">
+              <thead>
+                <tr><th>Name</th><th>Url</th><th></th></tr>
+              </thead>
+              <tbody>
+                <tr class="add-control">
+                  <td><input type="text" class="name" placeholder="name" /></td>
+                  <td><input type="text" class="url" placeholder="issuer.js url" /></td>
+                  <td class="controls"><input type="button" value="Add" class="add"/></td>
+                </tr>
+              </tbody>
+            </table>
+            <input class="hmt reset" type="button" value="Reset servers" />
+          </div>
         </div>
       </div>
     </div>
@@ -105,8 +111,10 @@
     var ServerControls = require('views/server-controls');
     var TogglePanel = require('views/toggle-panel');
     var GoControl = require('views/go-panel');
+    var config = require('config');
     var $ = require('jquery');
 
+    $('#image-size').val(config.defaultBadgeImageSize);
 
     var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
     var servers = new ServerList();
