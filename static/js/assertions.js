@@ -31,7 +31,7 @@ define(['jquery', 'md5'], function($, md5) {
         var hash = md5(overrides.badge.name);
         overrides.badge.image = 
           'http://vanillicon.com/' + hash + '.png';
-          //'http://permissiondenied.net/identicon/150/' + hash + '.png';
+          //'http://permissiondenied.net/identicon/220/' + hash + '.png';
       }
 
       assertion += '&override=' + encodeURIComponent(JSON.stringify(overrides));
