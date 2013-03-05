@@ -41,7 +41,6 @@ define(['backbone'], function(Backbone) {
       elements.each(function(el) {
         var el = el.toJSON();
         var id = '#' + el.id;
-        console.log('processing', el);
         switch (el.type) {
           case 'checkbox':
             $(id).prop('checked', el.value);
