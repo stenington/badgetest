@@ -121,9 +121,9 @@
       defaults: config.defaultServers
     });
     if (firstVisit) {
-      /* Before a user has any preferences in localStorage,
-         fetching will clobber the defaults with an empty list.
-         On subsequent site visits, an empty server list might
+      /* Before a user has any preferences in localStorage, 
+         fetching will clobber the defaults with an empty list. 
+         On subsequent site visits, an empty server list might 
          be valid (although pointless?).
        */
       servers.setDefault();
@@ -138,12 +138,17 @@
     }
 
     var issuerAPI = new IssuerAPI();
-    issuerAPI.reloadFrom(servers.at(0));
-    issuerAPI.on('reload', function(){
-      log('Reloaded issuer API');
+    issuerAPI.on('reload', function(serverName){
+      log('[' + serverName + '] Reloading issuer API...');
     });
-    issuerAPI.on('error', function(){
-      log('Issuer API reload error');
+    issuerAPI.on('success', function(serverName) {
+      log('[' + serverName + '] success!');
+    });
+    issuerAPI.on('error', function(serverName){
+      log('[' + serverName + '] error.');
+    });
+    issuerAPI.on('abort', function(serverName){
+      log('[' + serverName + '] abort.');
     });
 
     var advancedOptions = new TogglePanel({
@@ -163,8 +168,11 @@
 
     var serverSelect = new ServerSelect({
       el: $('.servers'),
-      collection: servers,
-      issuerAPI: issuerAPI
+      templateEl: $('#server-select-template'),
+      collection: servers
+    });
+    serverSelect.on('select', function(server) {
+      issuerAPI.reloadFrom(server);
     });
 
     var issueSelect = new IssueSelect({

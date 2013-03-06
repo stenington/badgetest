@@ -22,18 +22,22 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
     var currentXHR;
 
     self.reloadFrom = function(server) {
+      var name = server.get('name');
       self.availableMethods = [];
-      self.trigger('reload', server.get('name'));
+      self.trigger('reload', name);
 
       if (currentXHR) currentXHR.abort();
       script.attr('src', server.issuerURL());
       currentXHR = $.getScript(server.issuerURL())
         .success(function(){
           setMethods();
-          self.trigger('success');
+          self.trigger('success', name);
         })
-        .fail(function(){
-          self.trigger('error');
+        .fail(function(xhr, textStatus, err){
+          if (textStatus === 'abort') 
+            self.trigger('abort', name);
+          else
+            self.trigger('error', name, textStatus, err);
         });
       return currentXHR;
     };
