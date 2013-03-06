@@ -22,23 +22,18 @@ define(['backbone', 'assertions', 'config'], function(Backbone, buildAssertions,
     },
 
     go: function() {
-      try {
-        var assertions = buildAssertions(getOptions());
-        log('Assertions:', assertions);
-        this.issuerAPI.issue($('.issue-method select').val(), assertions);
-      }
-      catch (ex) {
-        log(ex);
-      }
+      var assertions = buildAssertions(getOptions());
+      log('Assertions:', assertions);
+      var method = $('.issue-method select').val();
+      this.trigger('issue', method, assertions);
       return false;
     },
 
     initialize: function(opts) {
-      this.issuerAPI = opts.issuerAPI;
       this.$el.find('.loaded').hide();
       var that = this;
-      this.issuerAPI.on('reload', function(from){ that.loading(from); });
-      this.issuerAPI.on('success', function(){ that.loaded(); });
+      this.model.on('reload', function(from){ that.loading(from); });
+      this.model.on('success', function(){ that.loaded(); });
     },
 
     loading: function(from) {

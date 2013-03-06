@@ -50,16 +50,21 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
     };
 
     self.issue = function(method, assertions) {
-      switch(method) {
-        case 'modal':
-          OpenBadges.issue(assertions);
-          break;
-        case 'modaless':
-          OpenBadges.issue_no_modal(assertions);
-          break;
-        case 'connect': 
-          alert('Not yet, bro!');
-          // TODO: Backpack Connect
+      try {
+        switch(method) {
+          case 'modal':
+            OpenBadges.issue(assertions);
+            break;
+          case 'modaless':
+            OpenBadges.issue_no_modal(assertions);
+            break;
+          case 'connect': 
+            alert('Not yet, bro!');
+            // TODO: Backpack Connect
+        }
+      }
+      catch (ex) {
+        log(ex);
       }
     };
 
