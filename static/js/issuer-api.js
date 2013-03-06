@@ -19,12 +19,15 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
       }
     }
 
+    var currentXHR;
+
     self.reloadFrom = function(server) {
       self.availableMethods = [];
       self.trigger('reload', server.get('name'));
 
+      if (currentXHR) currentXHR.abort();
       script.attr('src', server.issuerURL());
-      return $.getScript(server.issuerURL())
+      currentXHR = $.getScript(server.issuerURL())
         .success(function(){
           setMethods();
           self.trigger('success');
@@ -32,6 +35,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
         .fail(function(){
           self.trigger('error');
         });
+      return currentXHR;
     };
   
     self.issue = function(method, assertions) {

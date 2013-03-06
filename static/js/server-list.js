@@ -3,17 +3,15 @@ define(['server', 'backbone', 'localStorage'], function(Server, Backbone, LocalS
   var ServerList = Backbone.Collection.extend({
     model: Server,
     localStorage: new Backbone.LocalStorage("badgetest-serverlist"),
-    initialize: function() {
+    initialize: function(models, opts) {
+      opts = opts || {};
+      this.defaults = opts.defaults || [];
       this.on('add', function(server) { server.save(); });
       this.on('change', function(server) { server.save(); });
       this.on('remove', function(server) { server.destroy(); });
     },
     setDefault: function() {
-      this.update([
-        { name: 'development', url: 'http://dev.openbadges.org/' },
-        { name: 'staging', url: 'http://stage.openbadges.org/' },
-        { name: 'production', url: 'http://beta.openbadges.org/' }
-      ]);
+      this.update(this.defaults);
     }
   });
 

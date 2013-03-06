@@ -117,8 +117,15 @@
     $('#image-size').val(config.defaultBadgeImageSize);
 
     var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
-    var servers = new ServerList();
+    var servers = new ServerList(null, {
+      defaults: config.defaultServers
+    });
     if (firstVisit) {
+      /* Before a user has any preferences in localStorage,
+         fetching will clobber the defaults with an empty list.
+         On subsequent site visits, an empty server list might
+         be valid (although pointless?).
+       */
       servers.setDefault();
     }
     else {
@@ -168,6 +175,7 @@
     serverSelect.render();
     serversView.render();
     issueSelect.render();
+
   });
   require(['main'], function(){});
   </script>
