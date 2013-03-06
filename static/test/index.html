@@ -19,6 +19,13 @@
     <script src="../js/require-config.js"></script>
     <script src="../vendor/require.min.js"></script>
     <script>
+
+    QUnit.config.urlConfig.push({
+      id: "noExternalDeps",
+      label: "No external dependencies",
+      tooltip: "Skip tests that rely on external dependencies."
+    });
+
     defineTests.run(["test/all-tests"]);
     
     if (location.search.match(/externalreporter=1/))

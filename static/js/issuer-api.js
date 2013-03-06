@@ -42,6 +42,12 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
       return currentXHR;
     };
   
+    self.unload = function() {
+      if (currentXHR) currentXHR.abort();
+      currentXHR = null;
+      delete window['OpenBadges'];
+    };
+
     self.issue = function(method, assertions) {
       switch(method) {
         case 'modal':
