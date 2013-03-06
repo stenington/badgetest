@@ -150,6 +150,9 @@
     issuerAPI.on('abort', function(serverName){
       log('[' + serverName + '] abort.');
     });
+    issuerAPI.on('unload', function(){
+      log('Issuer API unloaded.');
+    });
 
     var advancedOptions = new TogglePanel({
       el: $('.advanced'),
@@ -173,6 +176,9 @@
     });
     serverSelect.on('select', function(server) {
       issuerAPI.reloadFrom(server);
+    });
+    serverSelect.on('deselect', function() {
+      issuerAPI.unload();
     });
 
     var issueSelect = new IssueSelect({
