@@ -85,3 +85,10 @@ input.narrow {
 input.right {
   text-align: right;
 }
+.connect-notice p {
+  padding: 4px;
+  border-radius: 4px;
+  color: #c09853;
+  background-color: #fcf8e3;
+  border: 1px solid #fbeed5;
+}

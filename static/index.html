@@ -33,6 +33,11 @@
           </div>
         </div>
       </form>
+      <div class="connect-notice">
+        <p>
+          Backpack Connect enabled for <span class="user"></span> on <span class="server"></span>.
+        </p>
+      </div>
       <hr>
       <div class="advanced">
         <a class="toggle">Advanced options</a>
@@ -102,6 +107,22 @@
   <script src="vendor/require.min.js"></script>
 
   <script>
+  define('queryParams', function(require) {
+    // http://geekswithblogs.net/PhubarBaz/archive/2011/11/21/getting-query-parameters-in-javascript.aspx
+    return (function() {
+      var result = {};
+      if (window.location.search) {
+        // split up the query string and store in an associative array
+        var params = window.location.search.slice(1).split("&");
+        for (var i = 0; i < params.length; i++) {
+            var tmp = params[i].split("=");
+            result[tmp[0]] = unescape(tmp[1]);
+        }
+      }
+      return result;
+    }());
+  });
+
   define('main', function(require) {
     var Server = require('server');
     var ServerList = require('server-list');
@@ -113,8 +134,16 @@
     var GoControl = require('views/go-panel');
     var config = require('config');
     var $ = require('jquery');
+    var params = require('queryParams');
 
     $('#image-size').val(config.defaultBadgeImageSize);
+    if (params['api_root']) {
+      $('.connect-notice .user').text(params['email']);
+      $('.connect-notice .server').text(params['server']);
+    }
+    else {
+      $('.connect-notice').hide();
+    }
 
     var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
     var servers = new ServerList(null, {
