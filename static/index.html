@@ -34,11 +34,11 @@
           </div>
         </div>
       </form>
-      <div class="connect-notice">
-        <p class='alert'>
+      <div class="connect-notice mt">
+        <div class='alert'>
           Backpack Connect enabled for <span class="user"></span> on <span class="server"></span>.
           <a href="/">Forget</a>
-        </p>
+        </div>
       </div>
       <hr>
       <div class="advanced">
@@ -103,6 +103,13 @@
     </select>
   </script>
 
+  <script id="alert-template" type="text/html">
+    <div class="<%= classes.join(' ') %>">
+      <%= message %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button> 
+    </div>
+  </script>
+
   <!-- empty script where we'll jam the Issuer API when loaded -->
   <script id="issuer-api"></script>
   
@@ -140,7 +147,18 @@
     var GoControl = require('views/go-panel');
     var config = require('config');
     var $ = require('jquery');
+    var _ = require('underscore');
     var params = require('queryParams');
+
+    var alertTemplate = _.template($('#alert-template').html());
+    function showMessage(msg, type) {
+      var classes = ['alert'];
+      if (type) classes.push('alert-' + type);
+      $('.connect-notice').append(alertTemplate({
+        message: msg,
+        classes: classes
+      }));
+    }
 
     /* ** Do some viewy stuff without an actual view for it. ** */
     $('#image-size').val(config.defaultBadgeImageSize);
@@ -221,10 +239,14 @@
       log('Issuer API unloaded.');
     });
     issuerAPI.on('connect:issue', function(data){
-      log('[ Backpack Connect ] Issued ' + data.badge.badge.name + '.');
+      var msg = 'Issued ' + data.badge.badge.name + '.';
+      showMessage(msg, 'success');
+      log('[ Backpack Connect ] ' + msg);
     });
     issuerAPI.on('connect:error', function(stat, err) {
-      log('[ Backpack Connect ] Error: ' + stat + ' ' + err);
+      var msg = 'Error: ' + stat + ' ' + err;
+      showMessage(msg, 'error');
+      log('[ Backpack Connect ] ' + msg);
     });
 
     serverSelect.on('select', function(server) {
