@@ -24,8 +24,7 @@ define(['backbone', 'assertions', 'config'], function(Backbone, buildAssertions,
     go: function() {
       var assertions = buildAssertions(getOptions());
       log('Assertions:', assertions);
-      var method = $('.issue-method select').val();
-      this.trigger('issue', method, assertions);
+      this.trigger('issue', assertions);
       return false;
     },
 

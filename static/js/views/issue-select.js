@@ -9,6 +9,10 @@ define(['backbone', 'underscore'], function(Backbone, _) {
 
     render: function() {
       this.$el.html(this.template({ methods: this.model.availableMethods }));
+    },
+
+    getSelected: function() {
+      return this.$el.find('select').val();
     }
   });
 
