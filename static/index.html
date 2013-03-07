@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <title>Badge Test</title>
   <link rel="stylesheet" href="css/normalize.css" type="text/css" />
-  <link rel="stylesheet" href="css/style.css" type="text/css" />
   <link rel="stylesheet" href="css/alerts.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
 </head>
 <body>
   <a href="https://github.com/stenington/badgetest"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
@@ -34,16 +34,12 @@
           </div>
         </div>
       </form>
-      <div class="connect-notice mt">
-        <div class='alert'>
-          Backpack Connect enabled for <span class="user"></span> on <span class="server"></span>.
-          <a href="/">Forget</a>
-        </div>
+      <div class="page-notice mt">
       </div>
       <hr>
       <div class="advanced">
         <a class="toggle">Advanced options</a>
-        <div class="toggled">
+        <div class="toggled" style="display:none;">
           <div class="panel">
             <h3>Generated badge images:</h3>
             <label>Size: <input id="image-size" class="right narrow" type="text" /> px</label>
@@ -104,9 +100,11 @@
   </script>
 
   <script id="alert-template" type="text/html">
-    <div class="<%= classes.join(' ') %>">
-      <%= message %>
-      <button type="button" class="close" data-dismiss="alert">&times;</button> 
+    <div class="alert <% if(type){ %>alert-<%= type %><% } %>">
+      <%= msg %>
+      <% if (!permanent){ %>
+        <button type="button" class="close" data-dismiss="alert">&times;</button> 
+      <% } %>
     </div>
   </script>
 
@@ -150,25 +148,36 @@
     var _ = require('underscore');
     var params = require('queryParams');
 
+    /* ** Page-wide error notification ** */
     var alertTemplate = _.template($('#alert-template').html());
-    function showMessage(msg, type) {
-      var classes = ['alert'];
-      if (type) classes.push('alert-' + type);
-      $('.connect-notice').append(alertTemplate({
-        message: msg,
-        classes: classes
-      }));
+
+    function showMessage(opts) {
+      $('.page-notice').append(alertTemplate(
+        _.defaults(opts, {
+          type: undefined,
+          permanent: false
+        })
+      ));
     }
+
+    window.onerror = function(err){
+      showMessage({
+        msg: '💥 <strong>Page explosion</strong>: ' 
+            + err + ' 💥 <br/><small>Patches welcome.</small>',
+        type: 'error'
+      });
+    };
 
     /* ** Do some viewy stuff without an actual view for it. ** */
     $('#image-size').val(config.defaultBadgeImageSize);
     if (params.api_root) {
-      $('.connect-notice .user').text(params.email);
-      $('.connect-notice .server').text(params.server);
+      showMessage({
+        msg: 'Backpack Connect enabled for ' + 
+            params.email + ' on ' + params.server + '. ' +
+            '<a href="/">Forget</a>',
+        permanent: true
+      });
       $('#email').val(params.email);
-    }
-    else {
-      $('.connect-notice').hide();
     }
 
     /* ** Create models & collections ** */
@@ -240,12 +249,18 @@
     });
     issuerAPI.on('connect:issue', function(data){
       var msg = 'Issued ' + data.badge.badge.name + '.';
-      showMessage(msg, 'success');
+      showMessage({
+        msg: msg, 
+        type: 'success'
+      });
       log('[ Backpack Connect ] ' + msg);
     });
     issuerAPI.on('connect:error', function(stat, err) {
       var msg = 'Error: ' + stat + ' ' + err;
-      showMessage(msg, 'error');
+      showMessage({
+        msg: msg, 
+        type: 'error'
+      });
       log('[ Backpack Connect ] ' + msg);
     });
 

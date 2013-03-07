@@ -88,3 +88,12 @@ input.right {
 .alert a {
   color: #c09853;
 }
+.alert {
+  position: relative;
+}
+.alert .close {
+  position: absolute;
+  top: 0;
+  right: 4px;
+}
+
