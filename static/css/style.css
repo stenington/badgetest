@@ -85,14 +85,6 @@ input.narrow {
 input.right {
   text-align: right;
 }
-.connect-notice p {
-  padding: 4px;
-  border-radius: 4px;
+.alert a {
   color: #c09853;
-  background-color: #fcf8e3;
-  border: 1px solid #fbeed5;
-}
-.connect-notice a {
-  color: #c09853;
-  margin-left: 1em;
 }

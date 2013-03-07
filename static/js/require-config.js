@@ -17,6 +17,9 @@ var require = {
         return Backbone.noConflict();
       }
     },
+    'bootstrap-alert': {
+      deps: ['jquery']
+    },
     'md5': {
       exports: function() {
         return md5;
