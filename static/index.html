@@ -192,9 +192,6 @@
       el: $('.go-panel'),
       model: issuerAPI
     });
-    goControl.on('issue', function(method, assertions) {
-      issuerAPI.issue(method, assertions);
-    });
 
     var serversView = new ServerControls({
       el: $('.server-controls'),
@@ -216,6 +213,11 @@
     var issueSelect = new IssueSelect({
       el: $('.issue-method'),
       model: issuerAPI
+    });
+
+    goControl.on('issue', function(assertions) {
+      var method = issueSelect.getSelected();
+      issuerAPI.issue(method, assertions, params);
     });
 
     serverSelect.render();

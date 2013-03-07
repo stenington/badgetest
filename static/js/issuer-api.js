@@ -1,5 +1,31 @@
 define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
 
+  /* Cut and paste buffer
+  function forgetToken() {
+    window.location.replace(window.location.pathname);
+  }
+
+  function refreshToken() {
+    var req = new XMLHttpRequest();
+    req.open('POST', api_root + '/token');
+    req.setRequestHeader('content-type', 'application/json');
+    req.onload = function() {
+      if (req.status == 200) {
+        var info = JSON.parse(req.responseText);
+        var url = window.location.pathname +
+          '?access_token=' + encodeURIComponent(info.access_token) +
+          '&refresh_token=' + encodeURIComponent(info.refresh_token) +
+          '&api_root=' + encodeURIComponent(api_root);
+        window.location.replace(url);
+      }
+    };
+    req.send(JSON.stringify({
+      grant_type: 'refresh_token',
+      refresh_token: refresh_token
+    }));
+  }
+  */
+
   var IssuerAPI = function(){
     var self = this;
 
@@ -49,7 +75,7 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
       self.trigger('unload');
     };
 
-    self.issue = function(method, assertions) {
+    self.issue = function(method, assertions, params) {
       try {
         switch(method) {
           case 'modal':
@@ -59,8 +85,38 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
             OpenBadges.issue_no_modal(assertions);
             break;
           case 'connect': 
-            alert('Not yet, bro!');
-            // TODO: Backpack Connect
+            if (!params.api_root) {
+              log("[Backpack Connect] Connecting...");
+              var email = params.email;
+              var server = params.server;
+              OpenBadges.connect({
+                callback: window.location.pathname 
+                  + '?email=' + encodeURIComponent(email)
+                  + '&server=' + encodeURIComponent(server),
+                scope: ["issue"]
+              });
+            }
+            else {
+              log("[Backpack Connect] Issuing...");
+              var api_root = params.api_root;
+              var access_token = params.access_token;
+              var req = new XMLHttpRequest();
+              var url = assertions[0];
+              $.ajax({
+                type: 'POST',
+                url: api_root + '/issue',
+                data: {
+                  badge: url
+                },
+                headers: {
+                  'authorization': 'Bearer ' + btoa(access_token),
+                  'content-type': 'application/json'
+                },
+                success: function(data, textStatus, req) {
+                  console.log("status: " + req.status + "\ncontent: " + req.responseText);
+                }
+              });
+            }
         }
       }
       catch (ex) {
