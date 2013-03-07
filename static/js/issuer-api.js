@@ -79,16 +79,17 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
       try {
         switch(method) {
           case 'modal':
-            OpenBadges.issue(assertions);
+            OpenBadges.issue(assertions);  // TODO: use callback
             break;
           case 'modaless':
             OpenBadges.issue_no_modal(assertions);
             break;
           case 'connect': 
             if (!params.api_root) {
-              log("[Backpack Connect] Connecting...");
               var email = params.email;
               var server = params.server;
+              log("[Backpack Connect] Connecting to " 
+                  + server + " as " + email + "...");
               OpenBadges.connect({
                 callback: window.location.pathname
                   + '?email=' + encodeURIComponent(email)
@@ -97,7 +98,8 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
               });
             }
             else {
-              log("[Backpack Connect] Issuing...");
+              log("[Backpack Connect] Issuing to " 
+                  + api_root + "...");
               var api_root = params.api_root;
               var access_token = params.access_token;
               var req = new XMLHttpRequest();
@@ -109,11 +111,13 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
                   badge: url
                 },
                 headers: {
-                  'authorization': 'Bearer ' + btoa(access_token),
-                  'content-type': 'application/json'
+                  'authorization': 'Bearer ' + btoa(access_token)
                 },
                 success: function(data, textStatus, req) {
-                  console.log("status: " + req.status + "\ncontent: " + req.responseText);
+                  self.trigger('connect:issue', data);
+                },
+                error: function(xhr, textStatus, err) {
+                  self.trigger('connect:error', textStatus, err);
                 }
               });
             }

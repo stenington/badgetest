@@ -8,11 +8,19 @@ define(['backbone', 'underscore'], function(Backbone, _) {
     },
 
     render: function() {
-      this.$el.html(this.template({ methods: this.model.availableMethods }));
+      var data = { 
+        methods: this.model.availableMethods,
+        selected: this.preferMethod
+      };
+      this.$el.html(this.template(data));
     },
 
     getSelected: function() {
       return this.$el.find('select').val();
+    },
+
+    prefer: function(method) {
+      this.preferMethod = method;
     }
   });
 

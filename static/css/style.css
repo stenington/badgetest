@@ -92,3 +92,7 @@ input.right {
   background-color: #fcf8e3;
   border: 1px solid #fbeed5;
 }
+.connect-notice a {
+  color: #c09853;
+  margin-left: 1em;
+}

@@ -36,6 +36,7 @@
       <div class="connect-notice">
         <p>
           Backpack Connect enabled for <span class="user"></span> on <span class="server"></span>.
+          <a href="/">Forget</a>
         </p>
       </div>
       <hr>
@@ -72,7 +73,9 @@
   <script id="server-select-template" type="text/html">
     <select id="server-select">
       <% _.each(servers, function(server, index) { %>
-      <option value="<%= index %>"><%= server.name %></option>
+      <option data-name="<%= server.name %>" data-url="<%= server.url %>" value="<%= index %>" 
+          <% if (selected){ %>selected="<%= server.name === selected %>"<% } %> >
+          <%= server.name %></option>
       <% }); %>
     </select>
   </script>
@@ -92,7 +95,9 @@
   <script id="issue-methods-template" type="text/html">
     <select id="method-select">
       <% _.each(methods, function(method) { %>
-      <option value="<%= method.key %>"><%= method.name %></option>
+      <option value="<%= method.key %>" 
+        <% if(selected){ %>selected="<%= method.key === selected %>"<% } %> >
+        <%= method.name %></option>
       <% }); %>
     </select>
   </script>
@@ -136,15 +141,18 @@
     var $ = require('jquery');
     var params = require('queryParams');
 
+    /* ** Do some viewy stuff without an actual view for it. ** */
     $('#image-size').val(config.defaultBadgeImageSize);
-    if (params['api_root']) {
-      $('.connect-notice .user').text(params['email']);
-      $('.connect-notice .server').text(params['server']);
+    if (params.api_root) {
+      $('.connect-notice .user').text(params.email);
+      $('.connect-notice .server').text(params.server);
+      $('#email').val(params.email);
     }
     else {
       $('.connect-notice').hide();
     }
 
+    /* ** Create models & collections ** */
     var firstVisit = (localStorage.getItem('badgetest-serverlist') === null);
     var servers = new ServerList(null, {
       defaults: config.defaultServers
@@ -167,22 +175,8 @@
     }
 
     var issuerAPI = new IssuerAPI();
-    issuerAPI.on('reload', function(serverName){
-      log('[' + serverName + '] Reloading issuer API...');
-    });
-    issuerAPI.on('success', function(serverName) {
-      log('[' + serverName + '] success!');
-    });
-    issuerAPI.on('error', function(serverName){
-      log('[' + serverName + '] error.');
-    });
-    issuerAPI.on('abort', function(serverName){
-      log('[' + serverName + '] abort.');
-    });
-    issuerAPI.on('unload', function(){
-      log('Issuer API unloaded.');
-    });
 
+    /* ** Create views ** */
     var advancedOptions = new TogglePanel({
       el: $('.advanced'),
       startHidden: true
@@ -203,6 +197,35 @@
       templateEl: $('#server-select-template'),
       collection: servers
     });
+
+    var issueSelect = new IssueSelect({
+      el: $('.issue-method'),
+      model: issuerAPI
+    });
+    
+    /* ** Wire up events ** */
+    issuerAPI.on('reload', function(serverName){
+      log('[' + serverName + '] Reloading issuer API...');
+    });
+    issuerAPI.on('success', function(serverName) {
+      log('[' + serverName + '] success!');
+    });
+    issuerAPI.on('error', function(serverName){
+      log('[' + serverName + '] error.');
+    });
+    issuerAPI.on('abort', function(serverName){
+      log('[' + serverName + '] abort.');
+    });
+    issuerAPI.on('unload', function(){
+      log('Issuer API unloaded.');
+    });
+    issuerAPI.on('connect:issue', function(data){
+      log('[ Backpack Connect ] Issued ' + data.badge.badge.name + '.');
+    });
+    issuerAPI.on('connect:error', function(stat, err) {
+      log('[ Backpack Connect ] Error: ' + stat + ' ' + err);
+    });
+
     serverSelect.on('select', function(server) {
       issuerAPI.reloadFrom(server);
     });
@@ -210,16 +233,22 @@
       issuerAPI.unload();
     });
 
-    var issueSelect = new IssueSelect({
-      el: $('.issue-method'),
-      model: issuerAPI
-    });
-
     goControl.on('issue', function(assertions) {
       var method = issueSelect.getSelected();
+      /* If it's the first click of "Go" for Backpack Connect,
+         we need the email and server to include in the callback url.
+         After that they'll be in the query parameters.
+       */
+      if (!params.email) params.email = $('#email').val();
+      if (!params.server) params.server = serverSelect.getSelected().get('name');
       issuerAPI.issue(method, assertions, params);
     });
 
+    /* ** Render the rendered views ** */
+    if (params.server) {
+      serverSelect.prefer(params.server);
+      issueSelect.prefer('connect');
+    }
     serverSelect.render();
     serversView.render();
     issueSelect.render();

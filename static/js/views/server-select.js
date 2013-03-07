@@ -30,12 +30,28 @@ define(['backbone', 'underscore'], function(Backbone, _) {
     },
 
     render: function() {
-      this.$el.html(this.template({ servers: this.collection.toJSON() }));
+      var data = { 
+        servers: this.collection.toJSON(),
+        selected: this.preferServerName
+      };
+      this.$el.html(this.template(data));
       this.selectionMade();
     },
 
     getSelected: function() {
       return this.collection.at(this.$el.find('select').val());
+    },
+    
+    select: function(server) {
+      var index = this.collection.indexOf(server);
+      if (index !== -1) {
+        this.$el.find('select').val(index);
+        this.selectionMade();
+      }
+    },
+
+    prefer: function(serverName) {
+      this.preferServerName = serverName;
     }
   });
  
