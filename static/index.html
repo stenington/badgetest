@@ -163,7 +163,8 @@
     window.onerror = function(err){
       showMessage({
         msg: '💥 <strong>Page explosion</strong>: ' 
-            + err + ' 💥 <br/><small>Patches welcome.</small>',
+            + err + ' 💥 <br/>'
+            + '<small><a href="https://github.com/stenington/badgetest/issues" target="_blank">Patches welcome.</a></small>',
         type: 'error'
       });
     };

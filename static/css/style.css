@@ -88,6 +88,9 @@ input.right {
 .alert a {
   color: #c09853;
 }
+.alert.alert-error a {
+  color: #B94A48;
+}
 .alert {
   position: relative;
 }
