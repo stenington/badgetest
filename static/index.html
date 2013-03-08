@@ -176,9 +176,17 @@
         msg: 'Backpack Connect enabled for ' + 
             params.email + ' on ' + params.server + '. ' +
             '<a href="/">Forget</a>',
+        type: 'info',
         permanent: true
       });
       $('#email').val(params.email);
+    }
+    else if (params.error === 'access_denied') {
+      showMessage({
+        msg: 'You denied Backpack Connect access for ' +
+            params.email + ' on ' + params.server + '.',
+        type: 'warning'
+      });
     }
 
     /* ** Create models & collections ** */
