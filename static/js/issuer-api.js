@@ -114,6 +114,9 @@ define(['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
                   'authorization': 'Bearer ' + btoa(access_token)
                 },
                 success: function(data, textStatus, req) {
+                  if (typeof data === 'string') {
+                    data = JSON.parse(data);
+                  }
                   self.trigger('connect:issue', data);
                 },
                 error: function(xhr, textStatus, err) {
