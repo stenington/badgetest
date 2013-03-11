@@ -8,7 +8,7 @@
     "name": "Open Source Contributor",
     "description": "For rocking in the free world",
     "image": "/img/badge.png",
-    "criteria": "http://example.com/criteria.html",
+    "criteria": "/criteria.html",
     "issuer": {
       "origin": "http://localhost:8889",
       "name": "yep",
