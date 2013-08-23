@@ -37,4 +37,33 @@ describe('app', function() {
         done(err);
       });
   });
+
+  it('disallows access to /test/ when not in debug mode', function(done) {
+    request()
+      .get('/test/')
+      .expect(404, done);
+  });
+
+  it('allows access to /test/ when in debug mode', function(done) {
+    request({debug: true})
+      .get('/test/')
+      .expect(200, done);
+  });
+
+  describe('routes', function(){
+    it('renders layout.html at /', function(done) {
+      var renderSpy;
+      request({
+        defineExtraMiddleware: function(app) {
+          renderSpy = sinon.spy(app, 'render');
+        }
+      })
+        .get('/')
+        .expect(200, function(err){
+          renderSpy.calledWithMatch('layout.html').should.eql(true);
+          renderSpy.restore();
+          done(err);
+        });
+    });
+  });
 });
