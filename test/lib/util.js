@@ -21,6 +21,11 @@ exports.app = function(options) {
       });
     };
     delete options.testRoutes;
+
+    if (options.testTemplates) {
+      options.extraTemplateLoaders = [FakeLoader(options.testTemplates)];
+      delete options.testTemplates;
+    }
   }
 
   return badgetest.app.build(options);
@@ -30,4 +35,18 @@ exports.request = function(options) {
   var app = exports.app(options);
 
   return request(app);
+};
+
+var FakeLoader = exports.templateLoader = function FakeLoader(map) {
+  return {
+    getSource: function(name) {
+      if (name in map) {
+        return {
+          src: map[name],
+          path: name,
+          upToDate: function() { return true; }
+        };
+      }
+    }
+  };
 };
