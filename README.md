@@ -1,4 +1,4 @@
-# Badgetest [![Build Status](https://secure.travis-ci.org/stenington/badgetest?branch=kaboom)](http://travis-ci.org/stenington/badgetest) 
+# Badgetest [![Build Status](https://secure.travis-ci.org/stenington/badgetest.png?branch=kaboom)](http://travis-ci.org/stenington/badgetest) 
 
 Rebuild of Badgetest
 
