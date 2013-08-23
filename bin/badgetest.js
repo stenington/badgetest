@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 
-const PORT = process.env['PORT'] || 3000;
+var assert = require('assert');
 
-var app = require('../').app.build();
+const PORT = process.env['PORT'] || 3000;
+const COOKIE_SECRET = process.env['COOKIE_SECRET'] || null;
+
+assert.ok(COOKIE_SECRET, 'COOKIE_SECRET env var should be defined.');
+
+var app = require('../').app.build({
+  cookieSecret: COOKIE_SECRET
+});
 var server = app;
 server.listen(PORT, function(){
   console.log("Listening on port " + PORT + ".");

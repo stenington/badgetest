@@ -1,10 +1,8 @@
-var request = require('supertest');
-
-var badgetest = require('../');
+var request = require('./lib/util').request;
 
 describe("app", function() {
   it("returns 'HELLO WORLD' at /", function(done) {
-    request(badgetest.app.build())
+    request()
       .get('/')
       .expect(200)
       .expect('HELLO WORLD')

@@ -2,7 +2,9 @@
   "name": "badgetest",
   "version": "0.2.0",
   "dependencies": {
-    "express": "~3.3.5"
+    "express": "~3.3.5",
+    "client-sessions": "~0.3.1",
+    "underscore": "~1.5.1"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha test/*.test.js --check-leaks -R spec"
