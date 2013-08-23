@@ -50,20 +50,30 @@ describe('app', function() {
       .expect(200, done);
   });
 
-  describe('routes', function(){
-    it('renders layout.html at /', function(done) {
-      var renderSpy;
-      request({
-        defineExtraMiddleware: function(app) {
-          renderSpy = sinon.spy(app, 'render');
-        }
-      })
-        .get('/')
-        .expect(200, function(err){
-          renderSpy.calledWithMatch('layout.html').should.eql(true);
-          renderSpy.restore();
-          done(err);
-        });
-    });
+  it('renders index.html at /', function(done) {
+    var renderSpy;
+    request({
+      defineExtraMiddleware: function(app) {
+        renderSpy = sinon.spy(app, 'render');
+      }
+    })
+      .get('/')
+      .expect(200, function(err){
+        renderSpy.calledWithMatch('layout.html').should.eql(true);
+        renderSpy.restore();
+        done(err);
+      });
+  });
+
+  it('hosts assertions in ./conf/assertions/', function(done) {
+    request()
+      .get('/assertion/demo.json')
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res){
+        res.body.should.have.property('badge');
+        res.body.badge.should.have.property('name', 'Badgetest Test Badge');
+        done(err);
+      });
   });
 });

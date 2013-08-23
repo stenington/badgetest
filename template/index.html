@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <button class="send-to-backpack">Send badge to Backpack</button>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/vendor/jquery{{ DOT_MIN }}.js"></script>
+  <script src="https://backpack.openbadges.org/issuer.js"></script>
+  <script>
+    $('document').ready(function(){
+      $('.send-to-backpack').click(function(){
+        OpenBadges.issue(window.location.protocol + '//' + window.location.host + '/assertion/demo.json');
+        return false;
+      });
+    });
+  </script>
+{% endblock %}

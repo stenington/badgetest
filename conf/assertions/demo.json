@@ -1,0 +1,18 @@
+{
+  "recipient": "fake@example.org",
+  "salt": "hashbrowns",
+  "expires": "2099-06-01",
+  "issued_on": "2011-06-01",
+  "badge": {
+    "version": "0.5.0",
+    "name": "Badgetest Test Badge",
+    "image": "{{ host }}/badge.png",
+    "description": "This is a test badge.",
+    "criteria": "{{ host }}/criteria.html",
+    "issuer": {
+      "origin": "{{ origin }}",
+      "name": "Badgetest",
+      "contact": "nobody@example.org"
+   }
+  }
+}
